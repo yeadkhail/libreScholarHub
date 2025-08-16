@@ -1,0 +1,54 @@
+server:
+  port: 8080   # Gateway runs on 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: discovery-server
+          uri: lb://DISCOVERY-SERVER
+          predicates:
+            - Path=/eureka/**
+
+        - id: researchpaper-service
+          uri: lb://researchpaper-service
+          predicates:
+            - Path=/papers/**
+
+        - id: university-service
+          uri: lb://university-service
+          predicates:
+            - Path=/universities/**
+
+        - id: admin-service
+          uri: lb://admin-service
+          predicates:
+            - Path=/admin/**
+
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/search/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+
+
+
