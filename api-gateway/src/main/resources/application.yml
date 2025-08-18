@@ -4,7 +4,10 @@ server:
 spring:
   application:
     name: api-gateway
-
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt: { }  # Decoder bean provided in code (JwtDecoderConfig)
   cloud:
     gateway:
       discovery:
@@ -37,6 +40,11 @@ spring:
           uri: lb://search-service
           predicates:
             - Path=/search/**
+
+# Shared JWT configuration (use the same Base64-encoded secret as userManagementService)
+security:
+  jwt:
+    secret: VGhpc0lzQVN1cGVyU2VjdXJlQmFzZTY0RW5jb2RlZEtleUF0TGVhc3QyNTZCaXRzIQ==
 
 eureka:
   client:
