@@ -1,17 +1,17 @@
 package com.ynm.usermanagementservice.service;
 
-import com.ynm.usermanagementservice.model.RefreshToken;
-import com.ynm.usermanagementservice.repository.RefreshTokenRepository;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.ynm.usermanagementservice.model.RefreshToken;
+import com.ynm.usermanagementservice.repository.RefreshTokenRepository;
 import java.security.Key;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,13 +24,13 @@ import java.util.function.Function;
 @Service
 public class JWTServiceImpl implements JWTService {
 
-    @Value("${provisorr.jwtSecret}")
+    @Value("${festnamao.jwtSecret}")
     private String jwtSecret;
 
-    @Value("${provisorr.jwtExpirationMs}")
+    @Value("${festnamao.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    @Value("${provisorr.jwtRefreshExpirationMs}")
+    @Value("${festnamao.jwtRefreshExpirationMs}")
     private long jwtRefreshExpirationMs;
 
     private final RefreshTokenRepository refreshTokenRepository;
@@ -77,7 +77,7 @@ public class JWTServiceImpl implements JWTService {
         try {
             refreshTokenRepository.deleteByUserId(userId);
         }catch (Exception e){
-            throw new RuntimeException("Error while deleting refresh token for user id : "+userId+" , error message : "+e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -93,7 +93,7 @@ public class JWTServiceImpl implements JWTService {
                 refreshTokenRepository.save(new RefreshToken(refreshToken,userId));
             }
         }catch (Exception e){
-            throw new RuntimeException("Error while saving refresh token for user id : "+userId+" , error message : "+e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -102,7 +102,7 @@ public class JWTServiceImpl implements JWTService {
         try {
             return refreshTokenRepository.existsByUserIdAndToken(userId,refreshToken);
         }catch (Exception e){
-            throw new RuntimeException("Error while validating refresh token for user id : "+userId+" , error message : "+e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -127,11 +127,11 @@ public class JWTServiceImpl implements JWTService {
         } catch (ExpiredJwtException e) {
             // Handle silently or log in controlled way
             log.warn("JWT token expired: {}", e.getMessage());
-            return null; // or throw custom exception if needed
+            throw new RuntimeException("JWT token expired");
         } catch (JwtException e) {
             // for other JWT related exceptions
             log.warn("Invalid JWT token: {}", e.getMessage());
-            return null;
+            throw new RuntimeException("Invalid JWT token");
         }
     }
 
@@ -141,3 +141,4 @@ public class JWTServiceImpl implements JWTService {
     }
 
 }
+

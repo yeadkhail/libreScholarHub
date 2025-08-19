@@ -1,12 +1,8 @@
 package com.ynm.usermanagementservice.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,11 +26,11 @@ public class MasterEntity {
     @CreationTimestamp
     @Schema(hidden = true)
     @NotNull
-    private OffsetDateTime createdOn;
+    private OffsetDateTime createdOn = OffsetDateTime.now();  // Add default value
 
     @JsonIgnore
     @UpdateTimestamp
     @Schema(hidden = true)
     @NotNull
-    private OffsetDateTime updatedOn;
+    private OffsetDateTime updatedOn = OffsetDateTime.now();  // Add default value
 }

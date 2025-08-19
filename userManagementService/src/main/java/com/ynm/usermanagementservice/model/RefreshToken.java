@@ -1,5 +1,7 @@
 package com.ynm.usermanagementservice.model;
 
+import com.ynm.usermanagementservice.model.MasterEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;

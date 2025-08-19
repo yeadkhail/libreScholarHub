@@ -14,3 +14,4 @@ public interface JWTService {
     void saveRefreshToken(Long userId, String refreshToken);
     boolean validateRefreshToken(Long userId, String refreshToken);
 }
+

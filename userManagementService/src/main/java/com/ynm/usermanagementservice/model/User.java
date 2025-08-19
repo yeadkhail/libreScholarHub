@@ -2,6 +2,7 @@ package com.ynm.usermanagementservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ynm.usermanagementservice.model.MasterEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Data
 @Entity
 @Table(name = "users")
@@ -21,16 +23,20 @@ public class User extends MasterEntity implements UserDetails {
     private String email;
     private String password;
     private String fullName;
-    private String phone;
+    @Column(name = "otp_verified", nullable = false)
     private boolean otpVerified;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Column(name = "user_photo", nullable = true)
     private String userPhoto;
+    @Column(name = "address", nullable = true)
     private String address;
+    @Column(name = "latitude", nullable = true)
     private Double latitude;
+    @Column(name = "longitude", nullable = true)
     private Double longitude;
 
     @Transient
@@ -89,11 +95,22 @@ public class User extends MasterEntity implements UserDetails {
         return doRoleMatch("ROLE_ADMIN");
     }
 
-    public boolean isPublisher_or_University() {
-        return doRoleMatch("ROLE_PUBLISHER_UNIVERSITY"); 
+    public boolean isSuperAdmin() {
+        return doRoleMatch("ROLE_SUPER_ADMIN");
     }
 
     public boolean isUser() {
         return doRoleMatch("ROLE_USER");
+    }
+
+    // In 'userManagementService/src/main/java/com/ynm/usermanagementservice/model/User.java'
+    private boolean isVerified = false;
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.isVerified = verified;
     }
 }
