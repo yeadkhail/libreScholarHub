@@ -46,6 +46,7 @@ public class SecurityConfiguration {
                                 "/api/auth",
                                 "/swagger-ui-testing.html",
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml"
                         )

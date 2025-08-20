@@ -4,49 +4,31 @@ server:
 spring:
   application:
     name: api-gateway
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt: { }  # Decoder bean provided in code (JwtDecoderConfig)
+
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lowerCaseServiceId: true   # ✅ modern property
-      # optional: route filters if you want custom paths
-      routes:
-        - id: author-service
-          uri: lb://author-service   # lb = load-balanced from Eureka
-          predicates:
-            - Path=/authors/**
-
-        - id: researchpaper-service
-          uri: lb://researchpaper-service
-          predicates:
-            - Path=/papers/**
-
-        - id: university-service
-          uri: lb://university-service
-          predicates:
-            - Path=/universities/**
-
-        - id: admin-service
-          uri: lb://admin-service
-          predicates:
-            - Path=/admin/**
-
-        - id: search-service
-          uri: lb://search-service
-          predicates:
-            - Path=/search/**
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true   # ✅ new property name
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/auth/**
 
 # Shared JWT configuration (use the same Base64-encoded secret as userManagementService)
 security:
   jwt:
-    secret: VGhpc0lzQVN1cGVyU2VjdXJlQmFzZTY0RW5jb2RlZEtleUF0TGVhc3QyNTZCaXRzIQ==
+    secret: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
 
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

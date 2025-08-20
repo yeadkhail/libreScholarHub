@@ -1,0 +1,12 @@
+@Service
+public class UserManagementServiceEurekaClient {
+    private final RestTemplate restTemplate;
+
+    public (RestTemplateBuilder builder) {
+        this.restTemplate = builder.build();
+    }
+
+    public String getAuthorData() {
+        return restTemplate.getForObject("http://author-service/api/authors", String.class);
+    }
+}

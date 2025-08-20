@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "FestNamao", version = "v1"),
+        info = @Info(title = "LibreResearchHub", version = "v1"),
         security = { @SecurityRequirement(name = "bearerAuth") }
 )
 @SecurityScheme(

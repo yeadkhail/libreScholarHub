@@ -24,13 +24,13 @@ import java.util.function.Function;
 @Service
 public class JWTServiceImpl implements JWTService {
 
-    @Value("${festnamao.jwtSecret}")
+    @Value("${security.jwtSecret}")
     private String jwtSecret;
 
-    @Value("${festnamao.jwtExpirationMs}")
+    @Value("${security.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    @Value("${festnamao.jwtRefreshExpirationMs}")
+    @Value("${security.jwtRefreshExpirationMs}")
     private long jwtRefreshExpirationMs;
 
     private final RefreshTokenRepository refreshTokenRepository;

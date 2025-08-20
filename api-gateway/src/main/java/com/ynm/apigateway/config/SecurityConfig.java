@@ -1,3 +1,4 @@
+// Java
 package com.ynm.apigateway.config;
 
 import org.springframework.context.annotation.Bean;
@@ -9,17 +10,14 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http
+        return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchange -> exchange
-                        .pathMatchers("/public/**").permitAll()
-                        .anyExchange().authenticated()
+                .authorizeExchange(exchanges -> exchanges
+                        .anyExchange().permitAll()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> {}) // Use lambda to avoid deprecation
-                );
-        return http.build();
+                .build();
     }
 }
