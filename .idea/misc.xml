@@ -9,6 +9,9 @@
         <option value="$PROJECT_DIR$/userManagementService/pom.xml" />
         <option value="$PROJECT_DIR$/Eureka Server/pom.xml" />
         <option value="$PROJECT_DIR$/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/ResearchPaperService/pom.xml" />
+        <option value="$PROJECT_DIR$/SearchService/pom.xml" />
+        <option value="$PROJECT_DIR$/NotificationService/pom.xml" />
       </list>
     </option>
   </component>
