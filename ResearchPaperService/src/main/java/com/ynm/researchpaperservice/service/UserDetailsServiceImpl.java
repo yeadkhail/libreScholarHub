@@ -1,35 +1,47 @@
 package com.ynm.researchpaperservice.service;
 
-import com.ynm.usermanagementservice.repository.UserRepository;
+import com.ynm.researchpaperservice.dto.UserDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private final UserRepository userRepository;
 
-    public UserDetailsServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final RestTemplate restTemplate;
+    private final String userServiceUrl;
+
+    public UserDetailsServiceImpl(RestTemplate restTemplate,
+                                  @Value("${user.service.url}") String userServiceUrl) {
+        this.restTemplate = restTemplate;
+        this.userServiceUrl = userServiceUrl;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("Attempting to load user by username/email: {}", username);
+    public UserDetails loadUserByUsername(String username) {
+        try {
+            log.debug("Attempting to load user with username: {}", username);
+            // Log the exact URL you're calling
+            log.debug("Calling User Management Service at: {}", userServiceUrl + "/users/email/" + username);
 
-        // Since login uses email, we need to find by email
-        var userOptional = userRepository.findByEmail(username);
+            ResponseEntity<UserDto> response = restTemplate.getForEntity(
+                    userServiceUrl + "/users/email/" + username,
+                    UserDto.class
+            );
 
-        if (userOptional.isPresent()) {
-            log.info("User found: {}", username);
-            return userOptional.get();
-        } else {
-            log.warn("User not found with email: {}", username);
-            throw new UsernameNotFoundException("User not found with email: " + username);
+            log.debug("Response status: {}", response.getStatusCode());
+            log.debug("Response body: {}", response.getBody());
+
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Failed to load user from User Management Service: {}", e.getMessage(), e);
+            throw new UsernameNotFoundException("User not found", e);
         }
     }
 }
-

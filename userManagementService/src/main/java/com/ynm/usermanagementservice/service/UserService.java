@@ -1,7 +1,10 @@
 package com.ynm.usermanagementservice.service;
 
+import com.ynm.usermanagementservice.dto.UserDto;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import com.ynm.usermanagementservice.model.User;
@@ -60,5 +63,21 @@ public class UserService {
 
     public long getRoleCount() {
         return roleRepository.count();
+    }
+    public UserDto getUserDtoByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserDto dto = new UserDto();
+        dto.setUsername(user.getEmail());
+        dto.setPassword(user.getPassword());
+        // Assuming user has a single role
+        dto.setRoles(Collections.singletonList(user.getRole().getName()));
+        dto.setAccountNonExpired(true);
+        dto.setAccountNonLocked(true);
+        dto.setCredentialsNonExpired(true);
+        dto.setEnabled(user.isVerified());
+
+        return dto;
     }
 }

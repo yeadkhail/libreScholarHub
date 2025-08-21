@@ -1,8 +1,8 @@
 package com.ynm.researchpaperservice.config;
 
 
-import com.ynm.usermanagementservice.service.JWTService;
-import com.ynm.usermanagementservice.service.UserDetailsServiceImpl;
+import com.ynm.researchpaperservice.service.JWTService;
+import com.ynm.researchpaperservice.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,15 +22,34 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 
+/**
+ * Servlet filter that runs once per request to handle JWT-based authentication.
+ * <p>
+ * Responsibilities:
+ * - Skips authentication for configured public endpoints.
+ * - Extracts and validates a Bearer token from the Authorization header.
+ * - Loads user details and populates the Spring SecurityContext on success.
+ * - Returns 401 Unauthorized with a JSON error body on failures (missing/invalid/expired token).
+ */
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter  extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JWTService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
 
+    /**
+     * Determines whether the current request path should bypass JWT processing.
+     *
+     * This method normalizes the request path by removing the servlet context path (if present),
+     * then checks the resulting path against a list of publicly accessible endpoints.
+     *
+     * @param requestPath  the raw request URI (e.g., HttpServletRequest#getRequestURI())
+     * @param contextPath  the servlet context path (e.g., HttpServletRequest#getContextPath())
+     * @return true if the request should bypass JWT checks and continue the filter chain; false otherwise
+     */
     private boolean shouldSkipJwtProcessing(String requestPath, String contextPath) {
         // Remove context path if present
         String path = requestPath;
@@ -47,10 +66,28 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/v3/api-docs/") ||
                 path.equals("/swagger-ui-testing.html") ||
+                path.equals("/swagger-ui.html") ||
+                path.equals("/auth/.well-known/jwks.json") ||
                 path.equals("/v3/api-docs.yaml");
     }
 
 
+    /**
+     * Core filter logic that attempts to authenticate the incoming request using a JWT.
+     * <p>
+     * Flow:
+     * - If the request targets a public endpoint, the filter chain proceeds without authentication.
+     * - Otherwise, the Authorization header is validated for a Bearer token.
+     * - The token is parsed to extract the username; user details are loaded and the token is validated.
+     * - On success, an authenticated UsernamePasswordAuthenticationToken is placed in the SecurityContext.
+     * - On failure, the response is short-circuited with HTTP 401 and a JSON error message.
+     *
+     * @param request     the current HTTP request
+     * @param response    the current HTTP response
+     * @param filterChain the filter chain to delegate to
+     * @throws ServletException if an error occurs within the servlet filter chain
+     * @throws IOException      if an I/O error occurs while writing the response or delegating the filter chain
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
@@ -113,4 +150,3 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-
