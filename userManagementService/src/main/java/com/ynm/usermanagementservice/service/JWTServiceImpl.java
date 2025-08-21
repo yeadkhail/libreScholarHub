@@ -140,5 +140,39 @@ public class JWTServiceImpl implements JWTService {
         return Keys.hmacShaKeyFor(key);
     }
 
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignKey()) // Changed from getSigningKey() to getSignKey()
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    // In JWTServiceImpl.java
+
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            // Validate JWT structure and signature
+            if (!validateToken(refreshToken)) return false;
+            // Check if token exists in DB (optional, for extra security)
+            String username = extractUsername(refreshToken);
+            Optional<RefreshToken> tokenOpt = refreshTokenRepository.findByToken(refreshToken);
+            return tokenOpt.isPresent() && !isTokenExpired(refreshToken);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getUsernameFromRefreshToken(String refreshToken) {
+        return extractUsername(refreshToken);
+    }
+
 }
 
