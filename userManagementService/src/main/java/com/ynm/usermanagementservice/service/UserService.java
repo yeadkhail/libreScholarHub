@@ -1,6 +1,7 @@
 package com.ynm.usermanagementservice.service;
 
 import com.ynm.usermanagementservice.dto.UserDto;
+import com.ynm.usermanagementservice.repository.RefreshTokenRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+                       RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
+
+//    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+//        this.userRepository = userRepository;
+//        this.roleRepository = roleRepository;
+//    }
 
     public User getUserByEmail(String email) {
         Optional<User> user =  userRepository.findByEmail(email);
@@ -79,5 +88,21 @@ public class UserService {
         dto.setEnabled(user.isVerified());
 
         return dto;
+    }
+    public boolean deleteRefreshTokenForUser(String email) {
+        try {
+            User user = getUserByEmail(email);
+            if (user != null) {
+                // Find and delete refresh token by user ID
+                // Assuming you have a refreshTokenRepository
+                refreshTokenRepository.deleteByUserId(user.getId());
+                log.info("Refresh token deleted for user: {}", email);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Failed to delete refresh token: {}", e.getMessage());
+            return false;
+        }
     }
 }
