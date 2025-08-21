@@ -1,7 +1,7 @@
 package com.ynm.researchpaperservice.Controller;
 
-import com.ynm.researchpaperservice.Entity.PaperTag;
-import com.ynm.researchpaperservice.Entity.Tag;
+import com.ynm.researchpaperservice.Model.PaperTag;
+import com.ynm.researchpaperservice.Model.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

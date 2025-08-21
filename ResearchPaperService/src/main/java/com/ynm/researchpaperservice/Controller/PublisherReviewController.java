@@ -1,6 +1,6 @@
 package com.ynm.researchpaperservice.Controller;
 
-import com.ynm.researchpaperservice.Entity.PublisherReview;
+import com.ynm.researchpaperservice.Model.PublisherReview;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ public class PublisherReviewController {
         PublisherReview dummy = new PublisherReview();
         dummy.setId(1);
         dummy.setPaper(null); // no actual paper
-        dummy.setUni_pub_id(review.getUni_pub_id() != null ? review.getUni_pub_id() : 1001);
+        dummy.setUniPubId(review.getUniPubId() != null ? review.getUniPubId() : 1001);
         return ResponseEntity.ok(dummy);
     }
 
@@ -30,12 +30,12 @@ public class PublisherReviewController {
         PublisherReview dummy1 = new PublisherReview();
         dummy1.setId(1);
         dummy1.setPaper(null);
-        dummy1.setUni_pub_id(1001);
+        dummy1.setUniPubId(1001);
 
         PublisherReview dummy2 = new PublisherReview();
         dummy2.setId(2);
         dummy2.setPaper(null);
-        dummy2.setUni_pub_id(1002);
+        dummy2.setUniPubId(1002);
 
         List<PublisherReview> list = new ArrayList<>();
         list.add(dummy1);

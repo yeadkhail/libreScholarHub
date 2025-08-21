@@ -1,6 +1,5 @@
-package com.ynm.researchpaperservice.Entity;
+package com.ynm.researchpaperservice.Model;
 
-import com.ynm.researchpaperservice.Entity.ResearchPaper;
 import jakarta.persistence.*;
 import lombok.*;
 

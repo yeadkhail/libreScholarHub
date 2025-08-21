@@ -1,6 +1,6 @@
 package com.ynm.researchpaperservice.Controller;
 
-import com.ynm.researchpaperservice.Entity.Review;
+import com.ynm.researchpaperservice.Model.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.ynm.researchpaperservice.Entity;
+package com.ynm.researchpaperservice.Model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

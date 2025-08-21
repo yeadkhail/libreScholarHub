@@ -1,4 +1,4 @@
-package com.ynm.researchpaperservice.Entity;
+package com.ynm.researchpaperservice.Model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
@@ -7,17 +7,19 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "PaperVersion")
-public class PaperVersion {
+@Table(name = "Review")
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    private Integer userId;
 
     @ManyToOne
     @JoinColumn(name = "paper_id", nullable = false)
     private ResearchPaper paper;
 
-    private Integer version_number;
-    private String file_path;
-    private Date upload_date;
+    private Integer score;
+    private String comment;
+    private Date timestamp;
 }

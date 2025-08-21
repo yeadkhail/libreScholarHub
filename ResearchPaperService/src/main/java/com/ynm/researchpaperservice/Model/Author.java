@@ -1,4 +1,4 @@
-package com.ynm.researchpaperservice.Entity;
+package com.ynm.researchpaperservice.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +16,7 @@ public class Author {
     @JoinColumn(name = "paper_id", nullable = false)
     private ResearchPaper paper;
 
-    private Integer user_id;
+    private Integer userId;
     private String position;
 }
 

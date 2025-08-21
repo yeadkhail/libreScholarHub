@@ -1,4 +1,4 @@
-package com.ynm.researchpaperservice.Entity;
+package com.ynm.researchpaperservice.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -6,16 +6,17 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "publisher_review")
-public class PublisherReview {
+@Table(name = "PaperTag")
+public class PaperTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer uni_pub_id;
-
     @ManyToOne
     @JoinColumn(name = "paper_id")
     private ResearchPaper paper;
-}
 
+    @ManyToOne
+    @JoinColumn(name = "tag_id")
+    private Tag tag;
+}

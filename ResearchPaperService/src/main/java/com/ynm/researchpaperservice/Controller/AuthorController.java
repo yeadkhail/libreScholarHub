@@ -1,6 +1,6 @@
 package com.ynm.researchpaperservice.Controller;
 
-import com.ynm.researchpaperservice.Entity.Author;
+import com.ynm.researchpaperservice.Model.Author;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ public class AuthorController {
         Author dummy = new Author();
         dummy.setId(1);
         dummy.setPaper(null); // no actual paper
-        dummy.setUser_id(author.getUser_id());
+        dummy.setUserId(author.getUserId());
         dummy.setPosition(author.getPosition() != null ? author.getPosition() : "Dummy position");
         return ResponseEntity.ok(dummy);
     }
@@ -31,13 +31,13 @@ public class AuthorController {
         Author dummy1 = new Author();
         dummy1.setId(1);
         dummy1.setPaper(null);
-        dummy1.setUser_id(101);
+        dummy1.setUserId(101);
         dummy1.setPosition("First Author");
 
         Author dummy2 = new Author();
         dummy2.setId(2);
         dummy2.setPaper(null);
-        dummy2.setUser_id(102);
+        dummy2.setUserId(102);
         dummy2.setPosition("Co-Author");
 
         List<Author> list = new ArrayList<>();

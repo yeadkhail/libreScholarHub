@@ -1,6 +1,6 @@
 package com.ynm.researchpaperservice.Repository;
 
-import com.ynm.researchpaperservice.Entity.Author;
+import com.ynm.researchpaperservice.Model.Author;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

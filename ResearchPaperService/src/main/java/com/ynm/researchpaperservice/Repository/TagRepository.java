@@ -1,6 +1,6 @@
 package com.ynm.researchpaperservice.Repository;
 
-import com.ynm.researchpaperservice.Entity.Tag;
+import com.ynm.researchpaperservice.Model.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
