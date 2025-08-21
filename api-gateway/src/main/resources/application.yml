@@ -19,6 +19,12 @@ spring:
               predicates:
                 - Path=/api/auth/**
 
+            - id: research-paper-service
+              uri: lb://research-paper-service
+              predicates:
+                - Path=/api/research-paper/**
+
+
 # Shared JWT configuration (use the same Base64-encoded secret as userManagementService)
 security:
   jwt:
