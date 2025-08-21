@@ -5,7 +5,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8090/auth/.well-known/jwks.json
+          jwk-set-uri: http://localhost:8080/api/auth/.well-known/jwks.json
 
   datasource:
     url: jdbc:postgresql://localhost:5432/libreresearchhub_researchpaper_service

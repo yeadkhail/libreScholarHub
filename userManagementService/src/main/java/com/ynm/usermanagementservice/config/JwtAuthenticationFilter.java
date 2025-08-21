@@ -71,6 +71,9 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
                 path.equals("/auth/.well-known/jwks.json") ||
                 path.startsWith("/user-service/users/email/") ||
                 path.startsWith("/users/email/") ||
+                path.equals("/api/auth/logout") ||
+                path.equals("/api/auth/refresh") ||
+                path.startsWith("/api/auth") ||
                 path.equals("/v3/api-docs.yaml");
     }
 

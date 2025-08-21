@@ -1,5 +1,6 @@
 package com.ynm.usermanagementservice.controller;
 
+import com.ynm.usermanagementservice.repository.RefreshTokenRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,7 +14,7 @@ import com.ynm.usermanagementservice.service.UserDetailsServiceImpl;
 
 import java.util.Map;
 import java.util.UUID;
-
+import com.ynm.usermanagementservice.model.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,7 +40,8 @@ public class AuthController {
     private UserService userService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     @GetMapping("")
     public ResponseEntity<Object> getAuthUser() {
@@ -90,10 +92,17 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String accessToken = jwtService.generateToken((UserDetails) authentication.getPrincipal());
+            User user = (User) authentication.getPrincipal(); // Your User implements UserDetails
+            String accessToken = jwtService.generateToken(user);
             UUID uuid = UUID.randomUUID();
             String uuidString = uuid.toString();
-            String refreshToken = jwtService.generateRefreshToken(Map.of("uuid", uuidString), (UserDetails) authentication.getPrincipal());
+            String refreshToken = jwtService.generateRefreshToken(Map.of("uuid", uuidString), user);
+
+            // Save refresh token to DB
+            RefreshToken refreshTokenEntity = new RefreshToken();
+            refreshTokenEntity.setToken(refreshToken);
+            refreshTokenEntity.setUserId(user.getId());
+            refreshTokenRepository.save(refreshTokenEntity);
 
             log.info("Login successful for email: {}", loginRequest.getEmail());
             return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
@@ -123,4 +132,69 @@ public class AuthController {
             return ResponseEntity.status(500).body("Registration failed: " + e.getMessage());
         }
     }
+
+    @PostMapping("logout")
+    public ResponseEntity<String> logout(@RequestBody Map<String, String> request) {
+        try {
+            log.info("Processing logout request");
+
+            // Get access token from request body
+            String accessToken = request.get("accessToken");
+            if (accessToken == null || accessToken.isEmpty()) {
+                return ResponseEntity.badRequest().body("Access token is required");
+            }
+
+            // Verify token and extract user email
+            String userEmail = jwtService.extractUsername(accessToken);
+            if (userEmail == null) {
+                return ResponseEntity.status(401).body("Invalid access token");
+            }
+
+            // Check if token is valid
+            boolean isTokenValid = jwtService.validateToken(accessToken);
+            if (!isTokenValid) {
+                return ResponseEntity.status(401).body("Invalid or expired access token");
+            }
+
+            // Delete refresh token from database for this user
+            boolean deleted = userService.deleteRefreshTokenForUser(userEmail);
+
+            // Clear the security context
+            SecurityContextHolder.clearContext();
+
+            log.info("Logout successful for user: {}", userEmail);
+            return ResponseEntity.ok("Logout successful");
+        } catch (Exception e) {
+            log.error("Logout failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("Logout failed: " + e.getMessage());
+        }
+    }
+
+// In AuthController.java
+
+    @PostMapping("refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.badRequest().body("Refresh token is required");
+        }
+
+        if (!jwtService.validateRefreshToken(refreshToken)) {
+            return ResponseEntity.status(401).body("Invalid or expired refresh token");
+        }
+
+        String username = jwtService.getUsernameFromRefreshToken(refreshToken);
+        if (username == null) {
+            return ResponseEntity.status(401).body("Invalid refresh token");
+        }
+
+        UserDetails userDetails = userService.getUserByEmail(username);
+        String newAccessToken = jwtService.generateToken(userDetails);
+
+        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+    }
+
 }
+
+
+
