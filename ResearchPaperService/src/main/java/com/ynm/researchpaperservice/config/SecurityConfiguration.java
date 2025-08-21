@@ -1,6 +1,8 @@
 package com.ynm.researchpaperservice.config;
 
-import com.ynm.usermanagementservice.service.UserDetailsServiceImpl;
+import com.ynm.researchpaperservice.config.AuthEntryPointJwt;
+import com.ynm.researchpaperservice.config.JwtAuthenticationFilter;
+import com.ynm.researchpaperservice.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,8 +46,10 @@ public class SecurityConfiguration {
                                 "/api/auth",
                                 "/swagger-ui-testing.html",
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/v3/api-docs.yaml"
+                                "/v3/api-docs.yaml",
+                                "/auth/.well-known/jwks.json"
                         )
                         .permitAll()
                         .anyRequest().authenticated())

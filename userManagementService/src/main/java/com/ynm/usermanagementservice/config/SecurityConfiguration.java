@@ -48,7 +48,9 @@ public class SecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/v3/api-docs.yaml"
+                                "/v3/api-docs.yaml",
+                                "/auth/.well-known/jwks.json",
+                                "/users/email/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated())
