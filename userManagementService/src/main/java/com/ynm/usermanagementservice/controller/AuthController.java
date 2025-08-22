@@ -13,6 +13,7 @@ import com.ynm.usermanagementservice.service.UserService;
 import com.ynm.usermanagementservice.service.UserDetailsServiceImpl;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import com.ynm.usermanagementservice.model.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,6 +178,12 @@ public class AuthController {
         String refreshToken = request.get("refreshToken");
         if (refreshToken == null || refreshToken.isEmpty()) {
             return ResponseEntity.badRequest().body("Refresh token is required");
+        }
+
+        // Check if refresh token exists in DB
+        Optional<RefreshToken> tokenEntity = refreshTokenRepository.findByToken(refreshToken);
+        if (tokenEntity.isEmpty()) {
+            return ResponseEntity.status(401).body("Refresh token not found");
         }
 
         if (!jwtService.validateRefreshToken(refreshToken)) {
