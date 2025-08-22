@@ -2,6 +2,7 @@ package com.ynm.usermanagementservice.service;
 
 import com.ynm.usermanagementservice.dto.UserDto;
 import com.ynm.usermanagementservice.repository.RefreshTokenRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +90,7 @@ public class UserService {
 
         return dto;
     }
+    @Transactional
     public boolean deleteRefreshTokenForUser(String email) {
         try {
             User user = getUserByEmail(email);
