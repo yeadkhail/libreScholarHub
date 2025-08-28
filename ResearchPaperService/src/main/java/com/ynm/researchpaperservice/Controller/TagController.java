@@ -27,22 +27,42 @@ public class TagController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Tag> getTagById(@PathVariable Integer id) {
-        return ResponseEntity.ok(tagService.getTagById(id));
+        try {
+            Tag tag = tagService.getTagById(id);
+            return ResponseEntity.ok(tag); // 200 if found
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build(); // 404 if not found
+        }
     }
 
     @GetMapping("/byName/{name}")
     public ResponseEntity<Tag> getTagByName(@PathVariable String name) {
-        return ResponseEntity.ok(tagService.getTagByName(name));
+        try {
+            Tag tag = tagService.getTagByName(name);
+            return ResponseEntity.ok(tag); // 200 if found
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build(); // 404 if not found
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Tag> updateTag(@PathVariable Integer id, @RequestBody Tag updatedTag) {
-        return ResponseEntity.ok(tagService.updateTag(id, updatedTag));
+        try {
+            Tag updated = tagService.updateTag(id, updatedTag);
+            return ResponseEntity.ok(updated); // 200 with updated tag
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build(); // 400 if duplicate or not found
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Tag> deleteTag(@PathVariable Integer id) {
-        Tag deleted = tagService.deleteTag(id);
-        return ResponseEntity.ok(deleted);
+        try {
+            Tag deleted = tagService.deleteTag(id);
+            return ResponseEntity.ok(deleted); // 200 with deleted tag
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build(); // 404 if not found
+        }
     }
+
 }
