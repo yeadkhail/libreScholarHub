@@ -40,7 +40,7 @@ public class AuthorService {
     /**
      * Remove an author from a paper
      */
-    public void removeAuthor(Integer paperId, Integer authorId) {
+    public Author  removeAuthor(Integer paperId, Integer authorId) {
         Author author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new RuntimeException("Author not found"));
 
@@ -49,5 +49,6 @@ public class AuthorService {
         }
 
         authorRepository.delete(author);
+        return author;
     }
 }
