@@ -1,8 +1,6 @@
 package com.ynm.researchpaperservice.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,10 +12,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "ResearchPaper")
 public class ResearchPaper {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String title;
-    private String abstractText; // renamed (abstract is keyword)
+    private String abstractText;
     private String uploadPath;
     private String visibility;
     private Integer ownerId;
