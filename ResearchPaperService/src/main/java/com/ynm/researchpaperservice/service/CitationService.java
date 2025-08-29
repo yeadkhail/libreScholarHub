@@ -54,7 +54,6 @@ public class CitationService {
         }).orElse(null);
     }
 
-    // Delete a citation
     public Citation deleteCitation(Long id) {
         Optional<Citation> existing = citationRepository.findById(id);
         if (existing.isPresent()) {
@@ -62,16 +61,14 @@ public class CitationService {
             citationRepository.delete(citation);
             return citation;
         } else {
-            return null; // Not found
+            return null;
         }
     }
 
-    // Get citations for a specific cited paper
     public List<Citation> getCitationsByCitedPaperId(Integer citedPaperId) {
         return citationRepository.findByCitedPaperId(citedPaperId);
     }
 
-    // Get citations made by a specific citing paper
     public List<Citation> getCitationsByCitingPaperId(Integer citingPaperId) {
         return citationRepository.findByCitingPaperId(citingPaperId);
     }
@@ -79,6 +76,4 @@ public class CitationService {
     public Citation getCitationById(Long id) {
         return citationRepository.findById(id).orElse(null);
     }
-
-
 }

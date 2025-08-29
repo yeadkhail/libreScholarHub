@@ -9,4 +9,5 @@ import java.util.List;
 public interface PaperTagRepository extends JpaRepository<PaperTag, Integer> {
     List<PaperTag> findByPaperId(Integer paperId);
     List<PaperTag> findByTagId(Integer tagId);
+    boolean existsByPaperIdAndTagId(Integer paperId, Integer tagId);
 }
