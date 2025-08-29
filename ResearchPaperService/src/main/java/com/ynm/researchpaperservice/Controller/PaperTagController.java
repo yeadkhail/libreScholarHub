@@ -1,52 +1,63 @@
 package com.ynm.researchpaperservice.Controller;
 
 import com.ynm.researchpaperservice.Model.PaperTag;
-import com.ynm.researchpaperservice.Model.Tag;
+import com.ynm.researchpaperservice.Service.PaperTagService;
+import com.ynm.researchpaperservice.dto.PaperTagDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/papers/{paperId}/tags")
+@RequestMapping("/api/paper-tags")
 @RequiredArgsConstructor
 public class PaperTagController {
-
-//    private final PaperTagService tagService;
+    private final PaperTagService paperTagService;
 
     @PostMapping
-    public ResponseEntity<PaperTag> addTag(@PathVariable Integer paperId, @RequestBody PaperTag paperTag) {
-//        return ResponseEntity.ok(tagService.addTagToPaper(paperId, paperTag));
-        PaperTag dummy = new PaperTag();
-        dummy.setId(1);
-        dummy.setPaper(null); // no actual paper
-        dummy.setTag(null);   // no actual tag
-        return ResponseEntity.ok(dummy);
+    public ResponseEntity<PaperTag> createPaperTag(@RequestBody PaperTagDto request) {
+        try {
+            PaperTag created = paperTagService.createPaperTag(request);
+            return ResponseEntity.ok(created);
+        } catch (RuntimeException e) {
+            String message = e.getMessage();
+            if (message.contains("not found")) {
+                return ResponseEntity.status(404).build();
+            } else if (message.contains("already assigned")) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @GetMapping
-    public ResponseEntity<List<Tag>> getTags(@PathVariable Integer paperId) {
-//        return ResponseEntity.ok(tagService.getTagsByPaper(paperId));
-        Tag tag1 = new Tag();
-        tag1.setId(101);
-        tag1.setName("Machine Learning");
-
-        Tag tag2 = new Tag();
-        tag2.setId(102);
-        tag2.setName("Networking");
-
-        List<Tag> list = new ArrayList<>();
-        list.add(tag1);
-        list.add(tag2);
-
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<PaperTag>> getAllPaperTags() {
+        return ResponseEntity.ok(paperTagService.getAllPaperTags());
     }
 
-    @DeleteMapping("/{tagId}")
-    public ResponseEntity<String> removeTag(@PathVariable Integer paperId, @PathVariable Integer tagId) {
-//        tagService.removeTagFromPaper(paperId, tagId);
-//        return ResponseEntity.noContent().build();
-        return ResponseEntity.ok("Called removeTag for paperId=" + paperId + ", tagId=" + tagId);
+    @GetMapping("/{id}")
+    public ResponseEntity<PaperTag> getPaperTagById(@PathVariable Integer id) {
+        PaperTag paperTag = paperTagService.getPaperTagById(id);
+        return paperTag != null ? ResponseEntity.ok(paperTag) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/paper/{paperId}")
+    public ResponseEntity<List<PaperTag>> getTagsByPaper(@PathVariable Integer paperId) {
+        return ResponseEntity.ok(paperTagService.getTagsByPaperId(paperId));
+    }
+
+    @GetMapping("/tag/{tagId}")
+    public ResponseEntity<List<PaperTag>> getPapersByTag(@PathVariable Integer tagId) {
+        return ResponseEntity.ok(paperTagService.getPapersByTagId(tagId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<PaperTag> deletePaperTag(@PathVariable Integer id) {
+        try {
+            PaperTag deleted = paperTagService.deletePaperTag(id);
+            return ResponseEntity.ok(deleted);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
