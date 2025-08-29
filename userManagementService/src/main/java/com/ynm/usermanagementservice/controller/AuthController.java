@@ -150,6 +150,44 @@ public class AuthController {
 
         }
     }
+
+    @PostMapping("publisher/login")
+    public ResponseEntity<?> loginPublisher(@RequestBody LoginRequest loginRequest) {
+        try {
+            log.info("Attempting publisher login for email: {}", loginRequest.getEmail());
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            User user = (User) authentication.getPrincipal(); // Your User implements UserDetails
+
+            // Check if user has publisher role
+            if (!user.getRole().getName().equalsIgnoreCase("ROLE_UNIPUBLISHER")) {
+                log.warn("Login attempt with non-publisher role for email: {}", loginRequest.getEmail());
+                return ResponseEntity.status(403).body("Access denied: Not a publisher");
+            }
+
+            String accessToken = jwtService.generateToken(user);
+            UUID uuid = UUID.randomUUID();
+            String uuidString = uuid.toString();
+            String refreshToken = jwtService.generateRefreshToken(Map.of("uuid", uuidString), user);
+
+            // Save refresh token to DB
+            RefreshToken refreshTokenEntity = new RefreshToken();
+            refreshTokenEntity.setToken(refreshToken);
+            refreshTokenEntity.setUserId(user.getId());
+            refreshTokenRepository.save(refreshTokenEntity);
+
+            log.info("Publisher login successful for email: {}", loginRequest.getEmail());
+            return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
+
+        } catch (Exception e) {
+            log.error("Publisher login failed for email: {} - Error: {}", loginRequest.getEmail(), e.getMessage(), e);
+            return ResponseEntity.status(401).body("Authentication failed: " + e.getMessage());
+        }
+    }
+
     @PostMapping("logout")
     public ResponseEntity<String> logout(@RequestBody Map<String, String> request) {
         try {
