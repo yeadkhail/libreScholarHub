@@ -134,6 +134,22 @@ public class AuthController {
         }
     }
 
+    @PostMapping("publisher/register")
+    public ResponseEntity<String> registerPublisher(@RequestBody RegisterRequest registerRequest) {
+        try {
+            log.info("Attempting publisher registration for email: {}", registerRequest.getEmail());
+            String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
+            boolean isEmailRegistered = userService.isEmailRegistered(registerRequest.getEmail());
+            if (isEmailRegistered) return ResponseEntity.badRequest().body("Email is already registered");
+            userService.savePublisher(registerRequest.getFullName(), registerRequest.getEmail(), hashedPassword);
+            log.info("Publisher registration successful for email: {}", registerRequest.getEmail());
+            return ResponseEntity.ok("Publisher registered successfully");
+        } catch (Exception e) {
+            log.error("Publisher registration failed for email: {} - Error: {}", registerRequest.getEmail(), e.getMessage(), e);
+            return ResponseEntity.status(500).body("Publisher registration failed: " + e.getMessage());
+
+        }
+    }
     @PostMapping("logout")
     public ResponseEntity<String> logout(@RequestBody Map<String, String> request) {
         try {
