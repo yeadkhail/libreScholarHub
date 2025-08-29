@@ -1,7 +1,7 @@
 package com.ynm.researchpaperservice.Controller;
 
 import com.ynm.researchpaperservice.Model.Citation;
-import com.ynm.researchpaperservice.Service.CitationService;
+import com.ynm.researchpaperservice.service.CitationService;
 import com.ynm.researchpaperservice.dto.CitationDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,46 +1,87 @@
 package com.ynm.researchpaperservice.Controller;
 
 import com.ynm.researchpaperservice.Model.PublisherReview;
+import com.ynm.researchpaperservice.dto.PublisherReviewDto;
+import com.ynm.researchpaperservice.service.JWTServiceImpl;
+import com.ynm.researchpaperservice.service.PublisherReviewService;
+import com.ynm.researchpaperservice.service.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/papers/{paperId}/publisher-reviews")
+@RequestMapping("/api/publisher-reviews")
 @RequiredArgsConstructor
 public class PublisherReviewController {
 
-//    private final PublisherReviewService publisherReviewService;
+    private final PublisherReviewService publisherReviewService;
+    private final JWTServiceImpl jwtService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    @PostMapping
-    public ResponseEntity<PublisherReview> addPublisherReview(@PathVariable Integer paperId, @RequestBody PublisherReview review) {
-//        return ResponseEntity.ok(publisherReviewService.addPublisherReview(paperId, review));
-        PublisherReview dummy = new PublisherReview();
-        dummy.setId(1);
-        dummy.setPaper(null); // no actual paper
-        dummy.setUniPubId(review.getUniPubId() != null ? review.getUniPubId() : 1001);
-        return ResponseEntity.ok(dummy);
+    // --- Helper Method: Role Check ---
+    private boolean hasUniPublisherRole(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+
+                return false;
+            }
+
+            String token = authHeader.substring(7);
+            String username = jwtService.extractUserName(token);
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            System.out.println(userDetails.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_UNIPUBLISHER")));
+
+            return userDetails.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_UNIPUBLISHER"));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    @PostMapping("/{paperId}")
+    public ResponseEntity<PublisherReview> createPubReview(@PathVariable Integer paperId,
+                                                           @RequestBody PublisherReviewDto reviewDto,
+                                                           HttpServletRequest request) {
+        if (!hasUniPublisherRole(request)) {
+            return ResponseEntity.status(403).build();
+        }
+        try {
+            return ResponseEntity.ok(publisherReviewService.createPubReview(reviewDto, paperId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).build();
+        }
     }
 
-    @GetMapping
-    public ResponseEntity<List<PublisherReview>> getPublisherReviews(@PathVariable Integer paperId) {
-//        return ResponseEntity.ok(publisherReviewService.getPublisherReviewsByPaper(paperId));
-        PublisherReview dummy1 = new PublisherReview();
-        dummy1.setId(1);
-        dummy1.setPaper(null);
-        dummy1.setUniPubId(1001);
+    @PutMapping("/{id}")
+    public ResponseEntity<PublisherReview> updatePubReview(@PathVariable Integer id,
+                                                           @RequestBody PublisherReviewDto reviewDto,
+                                                           HttpServletRequest request) {
+        if (!hasUniPublisherRole(request)) {
+            return ResponseEntity.status(403).build();
+        }
+        try {
+            return ResponseEntity.ok(publisherReviewService.updatePubReview(id, reviewDto));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).build();
+        }
+    }
 
-        PublisherReview dummy2 = new PublisherReview();
-        dummy2.setId(2);
-        dummy2.setPaper(null);
-        dummy2.setUniPubId(1002);
-
-        List<PublisherReview> list = new ArrayList<>();
-        list.add(dummy1);
-        list.add(dummy2);
-
-        return ResponseEntity.ok(list);
+    // DELETE (returns deleted review)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<PublisherReview> deletePubReview(@PathVariable Integer id,
+                                                           HttpServletRequest request) {
+        if (!hasUniPublisherRole(request)) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        try {
+            PublisherReview deleted = publisherReviewService.deletePubReview(id);
+            return ResponseEntity.ok(deleted); // return deleted entity
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).build(); // not found
+        }
     }
 }
