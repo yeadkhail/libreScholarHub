@@ -1,7 +1,7 @@
 package com.ynm.researchpaperservice.Controller;
 
 import com.ynm.researchpaperservice.Model.Author;
-import com.ynm.researchpaperservice.Service.AuthorService;
+import com.ynm.researchpaperservice.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

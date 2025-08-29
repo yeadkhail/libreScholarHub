@@ -1,4 +1,4 @@
-package com.ynm.researchpaperservice.Service;
+package com.ynm.researchpaperservice.service;
 
 
 import com.ynm.researchpaperservice.Model.ResearchPaper;

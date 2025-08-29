@@ -1,6 +1,6 @@
 package com.ynm.researchpaperservice.Controller;
 import com.ynm.researchpaperservice.Model.ResearchPaper;
-import com.ynm.researchpaperservice.Service.ResearchPaperService;
+import com.ynm.researchpaperservice.service.ResearchPaperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

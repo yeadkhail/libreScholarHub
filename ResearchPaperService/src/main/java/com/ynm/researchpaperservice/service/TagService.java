@@ -1,4 +1,4 @@
-package com.ynm.researchpaperservice.Service;
+package com.ynm.researchpaperservice.service;
 import com.ynm.researchpaperservice.Model.Tag;
 import com.ynm.researchpaperservice.Repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -13,7 +13,8 @@ public class PublisherReview {
     private Integer id;
 
     private Integer uniPubId;
-
+    private String reviewText;
+    private Float reviewScore;
     @ManyToOne
     @JoinColumn(name = "paper_id")
     private ResearchPaper paper;

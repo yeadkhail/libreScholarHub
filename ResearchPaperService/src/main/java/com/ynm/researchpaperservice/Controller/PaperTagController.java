@@ -1,7 +1,7 @@
 package com.ynm.researchpaperservice.Controller;
 
 import com.ynm.researchpaperservice.Model.PaperTag;
-import com.ynm.researchpaperservice.Service.PaperTagService;
+import com.ynm.researchpaperservice.service.PaperTagService;
 import com.ynm.researchpaperservice.dto.PaperTagDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
