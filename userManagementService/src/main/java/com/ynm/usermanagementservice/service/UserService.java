@@ -105,4 +105,26 @@ public class UserService {
             return false;
         }
     }
+
+
+    public void savePublisher(String fullName, String email, String hashedPassword) {
+        User user = new User();
+        user.setFullName(fullName);
+        user.setEmail(email);
+        user.setPassword(hashedPassword);
+        user.setUserName(email); // Use email as username for now
+
+        // Set default role (ROLE_USER)
+        Role defaultRole = roleRepository.findByNameIgnoreCase("ROLE_UNIPUBLISHER")
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setName("ROLE_UNIPUBLISHER");
+                    return roleRepository.save(role);
+                });
+
+        user.setRole(defaultRole);
+        user.setVerified(true); // Set as verified by default
+
+        userRepository.save(user);
+    }
 }

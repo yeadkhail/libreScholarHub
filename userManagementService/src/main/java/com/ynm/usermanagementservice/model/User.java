@@ -2,7 +2,6 @@ package com.ynm.usermanagementservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ynm.usermanagementservice.model.MasterEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -95,8 +94,8 @@ public class User extends MasterEntity implements UserDetails {
         return doRoleMatch("ROLE_ADMIN");
     }
 
-    public boolean isSuperAdmin() {
-        return doRoleMatch("ROLE_SUPER_ADMIN");
+    public boolean isunipublisher() {
+        return doRoleMatch("ROLE_UNIPUBLISHER");
     }
 
     public boolean isUser() {
