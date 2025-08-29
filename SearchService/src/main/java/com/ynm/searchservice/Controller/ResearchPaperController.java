@@ -33,8 +33,8 @@ public class ResearchPaperController {
         return ResponseEntity.of(researchPaperRepository.findById(id));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<ResearchPaper>> searchByTitle(@RequestParam String keyword) {
-        return ResponseEntity.ok(researchPaperRepository.findByTitleContainingIgnoreCase(keyword));
-    }
+//    @GetMapping("/search")
+//    public ResponseEntity<List<ResearchPaper>> searchByTitle(@RequestParam String keyword) {
+//        return ResponseEntity.ok(researchPaperRepository.findByTitleContainingIgnoreCase(keyword));
+//    }
 }
