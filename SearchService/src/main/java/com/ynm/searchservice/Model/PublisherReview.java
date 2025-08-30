@@ -1,11 +1,14 @@
 package com.ynm.searchservice.Model;
 
+import com.ynm.searchservice.Model.ResearchPaper;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "publisher_review")
 public class PublisherReview {
@@ -14,8 +17,10 @@ public class PublisherReview {
     private Integer id;
 
     private Integer uniPubId;
-
+    private String reviewText;
+    private Float reviewScore;
     @ManyToOne
     @JoinColumn(name = "paper_id")
     private ResearchPaper paper;
 }
+
