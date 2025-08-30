@@ -22,3 +22,18 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+
+user:
+  service:
+    url: http://localhost:8090/
+    token: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
+
+security:
+  jwtSecret: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=

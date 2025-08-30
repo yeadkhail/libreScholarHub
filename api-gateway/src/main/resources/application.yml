@@ -23,6 +23,10 @@ spring:
               uri: lb://research-paper-service
               predicates:
                 - Path=/api/research-paper/**
+            - id: search-service
+              uri: lb://search-service
+              predicates:
+                - Path=/api/search/**
 
 
 # Shared JWT configuration (use the same Base64-encoded secret as userManagementService)
