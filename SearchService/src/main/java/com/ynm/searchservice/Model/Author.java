@@ -1,24 +1,27 @@
 package com.ynm.searchservice.Model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-// This entity uses a composite primary key defined in AuthorId.java
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "Author")
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // recommended to add ID
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "paper_id", nullable = false)
     private ResearchPaper paper;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User user;
     private String position;
 }
+

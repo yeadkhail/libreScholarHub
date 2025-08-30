@@ -11,16 +11,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "User")
+@Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
     private String email;
     private String affiliation;
 
-    // Relations
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Author> authors;
 

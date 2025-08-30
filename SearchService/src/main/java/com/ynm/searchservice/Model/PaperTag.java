@@ -1,5 +1,7 @@
 package com.ynm.searchservice.Model;
 
+import com.ynm.searchservice.Model.ResearchPaper;
+import com.ynm.searchservice.Model.Tag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
