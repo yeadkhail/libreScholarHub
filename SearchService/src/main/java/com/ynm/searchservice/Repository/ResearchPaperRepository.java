@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ResearchPaperRepository extends JpaRepository<ResearchPaper, Integer> {
     List<ResearchPaper> findByOwnerId(Integer ownerId);
+    List<ResearchPaper> findByTitleContainingIgnoreCase(String title);
 }

@@ -15,7 +15,6 @@ import java.util.Date;
 @Table(name = "PaperVersion")
 public class PaperVersion {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne

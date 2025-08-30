@@ -15,7 +15,6 @@ import java.util.Date;
 @Table(name = "Review")
 public class Review {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne

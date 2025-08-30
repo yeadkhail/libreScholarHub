@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "Tag")
 public class Tag {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;

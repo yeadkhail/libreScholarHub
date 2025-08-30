@@ -39,6 +39,10 @@ user:
     token: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
 
 search:
-  service-url: http://localhost:8097/
+  service:
+    url: http://localhost:8097/
+    token: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
+
+
 security:
   jwtSecret: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
