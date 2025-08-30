@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: user-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
   datasource:
     url: jdbc:postgresql://localhost:5432/yeadkhail
     driver-class-name: org.postgresql.Driver
@@ -35,3 +41,6 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+
+spring.data.redis.repositories.enabled: false
