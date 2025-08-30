@@ -1,38 +1,71 @@
 package com.ynm.researchpaperservice.service;
 
-
 import com.ynm.researchpaperservice.Model.ResearchPaper;
 import com.ynm.researchpaperservice.Repository.ResearchPaperRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ResearchPaperService {
+
     @Autowired
     private ResearchPaperRepository researchPaperRepository;
 
+    private final RestTemplate restTemplate;
+    private final String searchServiceUrl;
+
+    public ResearchPaperService(ResearchPaperRepository researchPaperRepository,
+                                RestTemplate restTemplate,
+                                @Value("${search.service.url}") String searchServiceUrl) {
+        this.researchPaperRepository = researchPaperRepository;
+        this.restTemplate = restTemplate;
+        this.searchServiceUrl = searchServiceUrl;
+    }
+
+    private void syncWithSearchService(String method, String url, ResearchPaper paper) {
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            if (attrs != null) {
+                String bearerToken = attrs.getRequest().getHeader("Authorization");
+                if (bearerToken != null && !bearerToken.isEmpty()) {
+                    headers.set("Authorization", bearerToken);
+                }
+            }
+
+            HttpEntity<ResearchPaper> entity = paper != null ? new HttpEntity<>(paper, headers)
+                    : new HttpEntity<>(headers);
+
+            ResponseEntity<Void> response;
+            switch (method) {
+                case "POST" -> response = restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+                case "PUT" -> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+                case "DELETE" -> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+                default -> throw new IllegalArgumentException("Unsupported method: " + method);
+            }
+
+            log.debug("SearchService sync {} {} status: {}", method, url, response.getStatusCode());
+        } catch (Exception e) {
+            log.error("Failed to sync ResearchPaper with SearchService: {}", e.getMessage(), e);
+        }
+    }
+
     public ResearchPaper saveResearchPaper(ResearchPaper paper) {
-        return researchPaperRepository.save(paper);
-    }
-
-    public List<ResearchPaper> getAllResearchPapers() {
-        return researchPaperRepository.findAll();
-    }
-
-    public Optional<ResearchPaper> getResearchPaperById(Integer id) {
-        return researchPaperRepository.findById(id);
-    }
-
-    public ResearchPaper deleteResearchPaper(Integer id) {
-        return researchPaperRepository.findById(id)
-                .map(paper -> {
-                    researchPaperRepository.delete(paper);
-                    return paper;
-                })
-                .orElseThrow(() -> new RuntimeException("ResearchPaper not found with id " + id));
+        ResearchPaper saved = researchPaperRepository.save(paper);
+        syncWithSearchService("POST", searchServiceUrl + "/research-papers/sync", saved);
+        return saved;
     }
 
     public ResearchPaper updateResearchPaper(Integer id, ResearchPaper updatedPaper) {
@@ -44,8 +77,27 @@ public class ResearchPaperService {
             if (updatedPaper.getOwnerId() != null) existingPaper.setOwnerId(updatedPaper.getOwnerId());
             if (updatedPaper.getCreatedAt() != null) existingPaper.setCreatedAt(updatedPaper.getCreatedAt());
             if (updatedPaper.getMetric() != null) existingPaper.setMetric(updatedPaper.getMetric());
-            return researchPaperRepository.save(existingPaper);
+
+            ResearchPaper saved = researchPaperRepository.save(existingPaper);
+            syncWithSearchService("PUT", searchServiceUrl + "/research-papers/sync/" + id, saved);
+            return saved;
         }).orElseThrow(() -> new RuntimeException("ResearchPaper not found with id " + id));
+    }
+
+    public ResearchPaper deleteResearchPaper(Integer id) {
+        return researchPaperRepository.findById(id).map(paper -> {
+            researchPaperRepository.delete(paper);
+            syncWithSearchService("DELETE", searchServiceUrl + "/research-papers/sync/" + id, null);
+            return paper;
+        }).orElseThrow(() -> new RuntimeException("ResearchPaper not found with id " + id));
+    }
+
+    public List<ResearchPaper> getAllResearchPapers() {
+        return researchPaperRepository.findAll();
+    }
+
+    public Optional<ResearchPaper> getResearchPaperById(Integer id) {
+        return researchPaperRepository.findById(id);
     }
 
     public List<ResearchPaper> getResearchPapersByOwner(Integer ownerId) {

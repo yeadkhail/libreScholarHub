@@ -6,17 +6,60 @@ import com.ynm.researchpaperservice.Repository.CitationRepository;
 import com.ynm.researchpaperservice.Repository.ResearchPaperRepository;
 import com.ynm.researchpaperservice.dto.CitationDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CitationService {
 
     private final CitationRepository citationRepository;
     private final ResearchPaperRepository researchPaperRepository;
+    private final RestTemplate restTemplate;
+
+    @Value("${search.service.url}")
+    private String searchServiceUrl;
+
+    /** Helper to get current request's Bearer token */
+    private String getBearerToken() {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            return attrs.getRequest().getHeader("Authorization");
+        }
+        return null;
+    }
+
+    /** Helper to sync citation to Search Service */
+    private void syncWithSearchService(String endpoint, HttpMethod method, Object body) {
+        try {
+            String url = searchServiceUrl + endpoint;
+            String bearerToken = getBearerToken();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            if (bearerToken != null && !bearerToken.isEmpty()) {
+                headers.set("Authorization", bearerToken);
+            } else {
+                log.warn("No Authorization header found; skipping sync");
+                return;
+            }
+
+            HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+            ResponseEntity<Void> response = restTemplate.exchange(url, method, entity, Void.class);
+            log.debug("Search Service sync {} {} status: {}", method, url, response.getStatusCode());
+        } catch (Exception e) {
+            log.error("Failed to sync citation with Search Service: {}", e.getMessage(), e);
+        }
+    }
 
     public Citation createCitation(Integer citedPaperId, Integer citingPaperId) {
         Optional<ResearchPaper> cited = researchPaperRepository.findById(citedPaperId);
@@ -37,7 +80,12 @@ public class CitationService {
         citation.setCitedPaper(cited.get());
         citation.setCitingPaper(citing.get());
 
-        return citationRepository.save(citation);
+        Citation saved = citationRepository.save(citation);
+
+        // Sync to Search Service
+        syncWithSearchService("/citations/sync", HttpMethod.POST, saved);
+
+        return saved;
     }
 
     public Citation updateCitation(Long id, CitationDto dto) {
@@ -50,7 +98,12 @@ public class CitationService {
             existing.setCitingPaper(citing);
             existing.setCitedPaper(cited);
 
-            return citationRepository.save(existing);
+            Citation saved = citationRepository.save(existing);
+
+            // Sync update to Search Service
+            syncWithSearchService("/citations/sync/" + id, HttpMethod.PUT, saved);
+
+            return saved;
         }).orElse(null);
     }
 
@@ -59,6 +112,10 @@ public class CitationService {
         if (existing.isPresent()) {
             Citation citation = existing.get();
             citationRepository.delete(citation);
+
+            // Sync deletion
+            syncWithSearchService("/citations/sync/" + id, HttpMethod.DELETE, null);
+
             return citation;
         } else {
             return null;

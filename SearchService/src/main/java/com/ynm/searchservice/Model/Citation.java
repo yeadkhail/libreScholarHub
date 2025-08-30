@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "Citation")
 public class Citation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

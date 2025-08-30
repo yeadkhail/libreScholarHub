@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "Author")
 public class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne

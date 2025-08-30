@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "publisher_review")
 public class PublisherReview {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private Integer uniPubId;
