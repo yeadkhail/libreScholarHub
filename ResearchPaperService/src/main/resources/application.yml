@@ -1,6 +1,12 @@
 spring:
   application:
     name: research-paper-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
   security:
     oauth2:
       resourceserver:
@@ -42,3 +48,5 @@ search:
   service-url: http://localhost:8097/
 security:
   jwtSecret: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
+
+spring.data.redis.repositories.enabled: false

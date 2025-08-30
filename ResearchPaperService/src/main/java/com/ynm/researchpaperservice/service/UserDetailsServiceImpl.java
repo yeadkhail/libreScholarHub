@@ -3,6 +3,7 @@ package com.ynm.researchpaperservice.service;
 import com.ynm.researchpaperservice.dto.UserDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,6 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userServiceUrl = userServiceUrl;
     }
 
+    @Cacheable(value = "users", key = "#username")
     @Override
     public UserDetails loadUserByUsername(String username) {
         try {

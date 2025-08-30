@@ -76,7 +76,7 @@ public class UserService {
         return roleRepository.count();
     }
 
-    @Cacheable(value = "users", key = "#email")
+    @Cacheable(value = "userDtoCache", key = "#email")
     public UserDto getUserDtoByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
