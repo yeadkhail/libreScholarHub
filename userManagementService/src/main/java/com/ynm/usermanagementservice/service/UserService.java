@@ -3,6 +3,7 @@ package com.ynm.usermanagementservice.service;
 import com.ynm.usermanagementservice.dto.UserDto;
 import com.ynm.usermanagementservice.repository.RefreshTokenRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +75,8 @@ public class UserService {
     public long getRoleCount() {
         return roleRepository.count();
     }
+
+    @Cacheable(value = "users", key = "#email")
     public UserDto getUserDtoByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -87,6 +90,7 @@ public class UserService {
         dto.setAccountNonLocked(true);
         dto.setCredentialsNonExpired(true);
         dto.setEnabled(user.isVerified());
+        System.out.println("UserDto created for email: " + email + " in userService.getUserDtoByEmail");
 
         return dto;
     }
