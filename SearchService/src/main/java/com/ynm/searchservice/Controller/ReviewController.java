@@ -2,8 +2,10 @@ package com.ynm.searchservice.Controller;
 
 import com.ynm.searchservice.Model.*;
 import com.ynm.searchservice.Repository.*;
+import com.ynm.searchservice.dto.ReviewDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -11,13 +13,30 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final ResearchPaperRepository paperRepository;
 
-    public ReviewController(ReviewRepository repo) {
-        this.reviewRepository = repo;
+    public ReviewController(ReviewRepository reviewRepository,
+                            UserRepository userRepository,
+                            ResearchPaperRepository paperRepository) {
+        this.reviewRepository = reviewRepository;
+        this.userRepository = userRepository;
+        this.paperRepository = paperRepository;
     }
 
     @PostMapping("/sync")
-    public ResponseEntity<String> syncReview(@RequestBody Review review) {
+    public ResponseEntity<String> syncReview(@RequestBody ReviewDto dto) {
+        Review review = new Review();
+        review.setId(dto.getId());
+
+        // Map User
+        userRepository.findById(dto.getUserId()).ifPresent(review::setUser);
+
+        review.setScore(dto.getScore());
+        review.setPaper(dto.getPaper());
+        review.setComment(dto.getComment());
+        review.setTimestamp(dto.getTimestamp());
+
         reviewRepository.save(review);
         return ResponseEntity.ok("Review synced");
     }
