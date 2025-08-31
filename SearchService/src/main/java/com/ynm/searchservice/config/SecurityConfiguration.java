@@ -49,7 +49,8 @@ public class SecurityConfiguration {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
-                                "/auth/.well-known/jwks.json"
+                                "/auth/.well-known/jwks.json",
+                                "/users/sync"
                         )
                         .permitAll()
                         .anyRequest().authenticated())

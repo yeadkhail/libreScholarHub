@@ -14,8 +14,10 @@ import lombok.NoArgsConstructor;
 public class PublisherReview {
     @Id
     private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "unipub_id", nullable = false)
+    private User uniPub;
 
-    private Integer uniPubId;
     private String reviewText;
     private Float reviewScore;
     @ManyToOne
