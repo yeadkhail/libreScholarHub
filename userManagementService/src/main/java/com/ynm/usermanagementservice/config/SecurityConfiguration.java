@@ -39,6 +39,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
+                // Add "/api-docs/swagger-config" to the permitAll list
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/error",
@@ -47,7 +48,9 @@ public class SecurityConfiguration {
                                 "/swagger-ui-testing.html",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/v3/api-docs/**",
+                                "/api-docs/**",
+                                "/api-docs**",
+                                "/api-docs/swagger-config", // <-- Add this line
                                 "/v3/api-docs.yaml",
                                 "/auth/.well-known/jwks.json",
                                 "/users/email/**"
