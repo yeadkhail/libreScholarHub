@@ -1,6 +1,10 @@
 spring:
   application:
     name: research-paper-service
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   data:
     redis:
       host: localhost
@@ -55,6 +59,8 @@ search:
 security:
   jwtSecret: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
 
+file:
+  upload-dir: D:\3-2\Web Arch lab\project\libreScholarHub\ResearchPaperService\research-papers
 spring.data.redis.repositories.enabled: false
 
 

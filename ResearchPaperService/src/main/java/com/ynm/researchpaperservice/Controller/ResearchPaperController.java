@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,25 @@ public class ResearchPaperController {
     @PostMapping
     public ResponseEntity<ResearchPaper> createResearchPaper(@RequestBody ResearchPaper paper) {
         return ResponseEntity.ok(researchPaperService.saveResearchPaper(paper));
+    }
+    @PostMapping(value = "/upload")
+    public ResponseEntity<ResearchPaper> uploadResearchPaper(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam("abstractText") String abstractText,
+            @RequestParam("visibility") String visibility,
+            @RequestParam("ownerId") Integer ownerId,
+            @RequestParam("metric") Integer metric
+    ) {
+        ResearchPaper paper = new ResearchPaper();
+        paper.setTitle(title);
+        paper.setAbstractText(abstractText);
+        paper.setVisibility(visibility);
+        paper.setOwnerId(ownerId);
+        paper.setMetric(metric);
+
+        ResearchPaper saved = researchPaperService.saveResearchPaperWithFile(file, paper);
+        return ResponseEntity.ok(saved);
     }
 
     // ✅ Get all research papers
