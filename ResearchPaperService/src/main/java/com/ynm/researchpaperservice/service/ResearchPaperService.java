@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +26,10 @@ public class ResearchPaperService {
 
     private final RestTemplate restTemplate;
     private final String searchServiceUrl;
+
+    // Folder to save uploaded files
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     public ResearchPaperService(ResearchPaperRepository researchPaperRepository,
                                 RestTemplate restTemplate,
@@ -62,11 +69,37 @@ public class ResearchPaperService {
         }
     }
 
+    // Save research paper metadata only
     public ResearchPaper saveResearchPaper(ResearchPaper paper) {
         ResearchPaper saved = researchPaperRepository.save(paper);
         syncWithSearchService("POST", searchServiceUrl + "/research-papers/sync", saved);
         return saved;
     }
+
+    public ResearchPaper saveResearchPaperWithFile(MultipartFile file, ResearchPaper paper) {
+        try {
+            // Save file on server
+            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path filePath = Path.of(uploadDir, filename);
+            Files.createDirectories(filePath.getParent());
+            Files.write(filePath, file.getBytes());
+
+            // Set file path in the entity
+            paper.setUploadPath(filePath.toString());
+            paper.setCreatedAt(new java.sql.Date(System.currentTimeMillis()));
+
+            ResearchPaper saved = researchPaperRepository.save(paper);
+
+            // Sync with search service
+            syncWithSearchService("POST", searchServiceUrl + "/research-papers/sync", saved);
+
+            return saved;
+        } catch (Exception e) {
+            log.error("Failed to save research paper file", e);
+            throw new RuntimeException("File upload failed: " + e.getMessage());
+        }
+    }
+
 
     public ResearchPaper updateResearchPaper(Integer id, ResearchPaper updatedPaper) {
         return researchPaperRepository.findById(id).map(existingPaper -> {
