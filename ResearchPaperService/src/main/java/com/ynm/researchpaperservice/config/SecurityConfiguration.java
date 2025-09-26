@@ -47,6 +47,8 @@ public class SecurityConfiguration {
                                 "/swagger-ui-testing.html",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
+                                "/api-docs/**",            // <-- add this
+                                "/api-docs/swagger-config",// <-- add this
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
                                 "/auth/.well-known/jwks.json"

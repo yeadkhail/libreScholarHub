@@ -50,24 +50,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @return true if the request should bypass JWT checks and continue the filter chain; false otherwise
      */
     private boolean shouldSkipJwtProcessing(String requestPath, String contextPath) {
-        // Remove context path if present
         String path = requestPath;
         if (StringUtils.isNotEmpty(contextPath) && path.startsWith(contextPath)) {
             path = path.substring(contextPath.length());
         }
 
-        // List of paths that should skip JWT processing
         return path.startsWith("/api/auth/login") ||
                 path.equals("/api/auth/register") ||
                 path.equals("/api/auth/health") ||
                 path.startsWith("/api/user/ping") ||
                 path.startsWith("/swagger-ui/") ||
+                path.equals("/swagger-ui.html") ||
+                path.equals("/swagger-ui-testing.html") ||
+                path.startsWith("/api-docs") ||                // <-- add this
+                path.equals("/api-docs/swagger-config") ||     // <-- add this
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/v3/api-docs/") ||
-                path.equals("/swagger-ui-testing.html") ||
-                path.equals("/swagger-ui.html") ||
-                path.equals("/auth/.well-known/jwks.json") ||
-                path.equals("/v3/api-docs.yaml");
+                path.equals("/v3/api-docs.yaml") ||
+                path.equals("/auth/.well-known/jwks.json");
     }
 
 

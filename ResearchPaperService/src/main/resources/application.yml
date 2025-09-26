@@ -31,6 +31,8 @@ server:
   port: 8091
 
 springdoc:
+  api-docs:
+    path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
 
@@ -54,3 +56,5 @@ security:
   jwtSecret: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
 
 spring.data.redis.repositories.enabled: false
+
+
