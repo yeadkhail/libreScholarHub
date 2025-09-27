@@ -1,8 +1,9 @@
 package com.ynm.searchservice.Controller;
 
-import com.ynm.searchservice.Model.*;
-import com.ynm.searchservice.Repository.*;
+import com.ynm.searchservice.Model.PublisherReview;
 import com.ynm.searchservice.dto.PublisherReviewDto;
+import com.ynm.searchservice.service.PublisherReviewService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,45 +11,25 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/publisher-reviews")
+@AllArgsConstructor
 public class PublisherReviewController {
 
-    private final PublisherReviewRepository publisherReviewRepository;
-    private final UserRepository userRepository;
-    private final ResearchPaperRepository paperRepository;
+    private final PublisherReviewService publisherReviewService;
 
-    public PublisherReviewController(PublisherReviewRepository repo,
-                                     UserRepository userRepository,
-                                     ResearchPaperRepository paperRepository) {
-        this.publisherReviewRepository = repo;
-        this.userRepository = userRepository;
-        this.paperRepository = paperRepository;
-    }
-
-    // Sync create/update from researchpaperservice
     @PostMapping("/sync")
     public ResponseEntity<String> syncPublisherReview(@RequestBody PublisherReviewDto dto) {
-        PublisherReview pr = new PublisherReview();
-        pr.setId(dto.getId());
-
-        userRepository.findById(dto.getUniPubId()).ifPresent(pr::setUniPub);
-
-        pr.setReviewText(dto.getReviewText());
-        pr.setReviewScore(dto.getReviewScore());
-        pr.setPaper(dto.getPaper());
-        publisherReviewRepository.save(pr);
+        publisherReviewService.syncPublisherReview(dto);
         return ResponseEntity.ok("PublisherReview synced");
     }
 
-    // Delete
     @DeleteMapping("/sync/{id}")
     public ResponseEntity<String> deletePublisherReview(@PathVariable Integer id) {
-        publisherReviewRepository.deleteById(id);
+        publisherReviewService.deletePublisherReview(id);
         return ResponseEntity.ok("PublisherReview removed");
     }
 
-    // Get all reviews of a paper
     @GetMapping("/paper/{paperId}")
     public ResponseEntity<List<PublisherReview>> getPublisherReviewsByPaper(@PathVariable Integer paperId) {
-        return ResponseEntity.ok(publisherReviewRepository.findByPaperId(paperId));
+        return ResponseEntity.ok(publisherReviewService.getPublisherReviewsByPaper(paperId));
     }
 }

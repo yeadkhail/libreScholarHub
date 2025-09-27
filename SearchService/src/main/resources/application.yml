@@ -9,6 +9,8 @@ spring:
       port: 6379
   cache:
     type: redis
+    redis:
+      time-to-live: 6000000
   security:
     oauth2:
       resourceserver:
