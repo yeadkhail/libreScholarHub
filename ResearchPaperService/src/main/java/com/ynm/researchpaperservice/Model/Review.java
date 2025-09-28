@@ -22,4 +22,6 @@ public class Review {
     private Integer score;
     private String comment;
     private Date timestamp;
+
+    private float lastUpdate;
 }
