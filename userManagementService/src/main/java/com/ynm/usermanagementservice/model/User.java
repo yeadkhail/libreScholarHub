@@ -37,6 +37,8 @@ public class User extends MasterEntity implements UserDetails {
     private Double latitude;
     @Column(name = "longitude", nullable = true)
     private Double longitude;
+    @Column(name = "user_metice", nullable = true)
+    private Float userMetice;
 
     @Transient
     @JsonProperty("authorities")

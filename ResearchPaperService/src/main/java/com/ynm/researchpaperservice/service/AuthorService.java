@@ -43,7 +43,6 @@ public class AuthorService {
 
         // Save the author locally
         Author savedAuthor = authorRepository.save(author);
-
         // Sync with Search Service
         try {
             String url = searchServiceUrl + "/authors/sync";
@@ -54,6 +53,7 @@ public class AuthorService {
             if (attrs != null) {
                 String bearerToken = attrs.getRequest().getHeader("Authorization");
                 if (bearerToken != null && !bearerToken.isEmpty()) {
+                    System.out.println(bearerToken);
                     HttpHeaders headers = new HttpHeaders();
                     headers.set("Authorization", bearerToken); // propagate JWT
                     headers.setContentType(MediaType.APPLICATION_JSON);
