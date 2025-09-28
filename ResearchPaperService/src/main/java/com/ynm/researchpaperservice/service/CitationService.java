@@ -69,6 +69,7 @@ public class CitationService {
             return null;
         }
 
+
         Optional<Citation> existing = citationRepository
                 .findByCitedPaperIdAndCitingPaperId(citedPaperId, citingPaperId);
 
@@ -76,11 +77,17 @@ public class CitationService {
             return existing.get();
         }
 
+
         Citation citation = new Citation();
         citation.setCitedPaper(cited.get());
         citation.setCitingPaper(citing.get());
 
         Citation saved = citationRepository.save(citation);
+
+        float lastUpdate = citing.get().getMetric()/1000;
+        cited.get().addMetric(lastUpdate);
+
+        citation.setLastUpdate(lastUpdate);
 
         // Sync to Search Service
         syncWithSearchService("/citations/sync", HttpMethod.POST, saved);
