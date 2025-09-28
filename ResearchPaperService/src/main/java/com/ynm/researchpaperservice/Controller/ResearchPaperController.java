@@ -37,7 +37,7 @@ public class ResearchPaperController {
         paper.setAbstractText(abstractText);
         paper.setVisibility(visibility);
         paper.setOwnerId(ownerId);
-        paper.setMetric(0);
+        paper.setMetric(0f);
 
         ResearchPaper saved = researchPaperService.saveResearchPaperWithFile(file, paper);
         return ResponseEntity.ok(saved);
