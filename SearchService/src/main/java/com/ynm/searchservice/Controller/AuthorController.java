@@ -18,6 +18,7 @@ public class AuthorController {
 
     @PostMapping("/sync")
     public ResponseEntity<String> syncAuthor(@RequestBody AuthorDto dto) {
+        System.out.println(authorService.syncAuthor(dto));
         authorService.syncAuthor(dto);
         return ResponseEntity.ok("Author synced");
     }

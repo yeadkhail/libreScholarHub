@@ -6,6 +6,7 @@ import com.ynm.searchservice.Repository.PublisherReviewRepository;
 import com.ynm.searchservice.Repository.UserRepository;
 import com.ynm.searchservice.dto.PublisherReviewDto;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class PublisherReviewService {
     private final PublisherReviewRepository publisherReviewRepository;
     private final UserRepository userRepository;
 
+    //@CachePut(value = "publisherReviews", key = "#dto.id")
     public PublisherReview syncPublisherReview(PublisherReviewDto dto) {
         PublisherReview pr = new PublisherReview();
         pr.setId(dto.getId());
@@ -32,6 +34,7 @@ public class PublisherReviewService {
         return publisherReviewRepository.save(pr);
     }
 
+    //@CacheEvict(value = "publisherReviews", key = "#id")
     public void deletePublisherReview(Integer id) {
         if (!publisherReviewRepository.existsById(id)) {
             throw new RuntimeException("PublisherReview not found");
@@ -39,6 +42,7 @@ public class PublisherReviewService {
         publisherReviewRepository.deleteById(id);
     }
 
+    //@Cacheable(value = "reviewsByPaper", key = "#paperId")
     public List<PublisherReview> getPublisherReviewsByPaper(Integer paperId) {
         return publisherReviewRepository.findByPaperId(paperId);
     }

@@ -50,7 +50,8 @@ public class SecurityConfiguration {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
                                 "/auth/.well-known/jwks.json",
-                                "/users/sync"
+                                "/users/sync",
+                                "/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated())
