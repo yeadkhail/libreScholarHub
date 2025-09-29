@@ -5,6 +5,8 @@ import com.ynm.researchpaperservice.Model.ResearchPaper;
 import com.ynm.researchpaperservice.Repository.CitationRepository;
 import com.ynm.researchpaperservice.Repository.ResearchPaperRepository;
 import com.ynm.researchpaperservice.dto.CitationDto;
+import com.ynm.researchpaperservice.dto.UserDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +27,8 @@ public class CitationService {
     private final CitationRepository citationRepository;
     private final ResearchPaperRepository researchPaperRepository;
     private final RestTemplate restTemplate;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final JWTService jwtService;
 
     @Value("${search.service.url}")
     private String searchServiceUrl;
@@ -89,45 +93,62 @@ public class CitationService {
 
         citation.setLastUpdate(lastUpdate);
 
+        UserScoreService userScoreService = new UserScoreService(restTemplate);
+        String userName = "";
+
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            HttpServletRequest request = attrs.getRequest();
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String jwt = authHeader.substring(7);
+                userName = jwtService.extractUserName(jwt);
+
+            }
+        }
+        UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
+        Long userId = userScoreService.getUserIdByEmail(user.getUsername());
+        userScoreService.syncScore(userId,lastUpdate,0f);
+
         // Sync to Search Service
         syncWithSearchService("/citations/sync", HttpMethod.POST, saved);
 
         return saved;
     }
 
-    public Citation updateCitation(Long id, CitationDto dto) {
-        return citationRepository.findById(id).map(existing -> {
-            ResearchPaper citing = researchPaperRepository.findById(dto.getCitingPaperId())
-                    .orElseThrow(() -> new RuntimeException("Invalid citing paper ID"));
-            ResearchPaper cited = researchPaperRepository.findById(dto.getCitedPaperId())
-                    .orElseThrow(() -> new RuntimeException("Invalid cited paper ID"));
-
-            existing.setCitingPaper(citing);
-            existing.setCitedPaper(cited);
-
-            Citation saved = citationRepository.save(existing);
-
-            // Sync update to Search Service
-            syncWithSearchService("/citations/sync/" + id, HttpMethod.PUT, saved);
-
-            return saved;
-        }).orElse(null);
-    }
-
-    public Citation deleteCitation(Long id) {
-        Optional<Citation> existing = citationRepository.findById(id);
-        if (existing.isPresent()) {
-            Citation citation = existing.get();
-            citationRepository.delete(citation);
-
-            // Sync deletion
-            syncWithSearchService("/citations/sync/" + id, HttpMethod.DELETE, null);
-
-            return citation;
-        } else {
-            return null;
-        }
-    }
+//    public Citation updateCitation(Long id, CitationDto dto) {
+//        return citationRepository.findById(id).map(existing -> {
+//            ResearchPaper citing = researchPaperRepository.findById(dto.getCitingPaperId())
+//                    .orElseThrow(() -> new RuntimeException("Invalid citing paper ID"));
+//            ResearchPaper cited = researchPaperRepository.findById(dto.getCitedPaperId())
+//                    .orElseThrow(() -> new RuntimeException("Invalid cited paper ID"));
+//
+//            existing.setCitingPaper(citing);
+//            existing.setCitedPaper(cited);
+//
+//            Citation saved = citationRepository.save(existing);
+//
+//            // Sync update to Search Service
+//            syncWithSearchService("/citations/sync/" + id, HttpMethod.PUT, saved);
+//
+//            return saved;
+//        }).orElse(null);
+//    }
+//
+//    public Citation deleteCitation(Long id) {
+//        Optional<Citation> existing = citationRepository.findById(id);
+//        if (existing.isPresent()) {
+//            Citation citation = existing.get();
+//            citationRepository.delete(citation);
+//
+//            // Sync deletion
+//            syncWithSearchService("/citations/sync/" + id, HttpMethod.DELETE, null);
+//
+//            return citation;
+//        } else {
+//            return null;
+//        }
+//    }
 
     public List<Citation> getCitationsByCitedPaperId(Integer citedPaperId) {
         return citationRepository.findByCitedPaperId(citedPaperId);

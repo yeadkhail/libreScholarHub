@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService) {
-
+    public UserController(UserService userService, UserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/email/{email}")
@@ -36,6 +37,21 @@ public class UserController {
         System.out.println(request.getLastUpdate());
         System.out.println(request.getUserId());
         System.out.println(request.getNewUpdate());
+        User user = userRepository.findById(request.getUserId()).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User not found with id: " + request.getUserId());
+        }
+        float oldScore = user.getUserMetice();
+        oldScore = oldScore + request.getNewUpdate() - request.getLastUpdate();
+        if(oldScore < 0){
+            oldScore = 0;
+        }
+        user.setUserMetice(oldScore);
+
+        userRepository.save(user);
+
+
+
     }
 
     @GetMapping("/email/{email}/score")
