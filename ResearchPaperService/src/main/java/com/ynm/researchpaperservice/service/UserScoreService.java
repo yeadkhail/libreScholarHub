@@ -23,15 +23,14 @@ public class UserScoreService {
     public UserScoreService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
-
-    public void syncScore(String email, Float newUpdate, Float lastUpdate) {
+    public void syncScore(Integer userId, Float newUpdate, Float lastUpdate) {
         try {
             String url = userServiceUrl + "/users/syncScore";
             log.debug("Syncing user score at: {}", url);
 
             // Prepare body
             Map<String, Object> scorePayload = new HashMap<>();
-            scorePayload.put("email", email);
+            scorePayload.put("userId", userId);
             scorePayload.put("lastUpdate", lastUpdate);
             scorePayload.put("newUpdate", newUpdate);
 
@@ -95,7 +94,6 @@ public class UserScoreService {
                     Float.class
             );
 
-            System.out.println(response.getBody());
             log.debug("Received user score for {}: {}", email, response.getBody());
             return response.getBody();
 
@@ -104,5 +102,6 @@ public class UserScoreService {
             return null;
         }
     }
+
 
 }

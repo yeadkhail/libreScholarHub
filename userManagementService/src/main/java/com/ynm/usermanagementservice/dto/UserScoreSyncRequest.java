@@ -1,10 +1,11 @@
 package com.ynm.usermanagementservice.dto;
 
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 public class UserScoreSyncRequest {
-    private String email;
+    private Integer userId;
     private Float lastUpdate;
     private Float newUpdate;
 }
