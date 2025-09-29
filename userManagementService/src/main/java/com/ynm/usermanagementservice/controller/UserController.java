@@ -46,4 +46,13 @@ public class UserController {
         }
         return user.getUserMetice();  // returns Float
     }
+
+    @GetMapping("/email/{email}/id")
+    public Long getUserIdByEmail(@PathVariable String email) {
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+        return user.getId();
+    }
 }

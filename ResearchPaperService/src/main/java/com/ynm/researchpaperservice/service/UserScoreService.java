@@ -23,7 +23,7 @@ public class UserScoreService {
     public UserScoreService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
-    public void syncScore(Integer userId, Float newUpdate, Float lastUpdate) {
+    public void syncScore(Long userId, Float newUpdate, Float lastUpdate) {
         try {
             String url = userServiceUrl + "/users/syncScore";
             log.debug("Syncing user score at: {}", url);
@@ -102,6 +102,40 @@ public class UserScoreService {
             return null;
         }
     }
+    public Long getUserIdByEmail(String email){
+        try {
+            // URL points to the endpoint in User Service that fetches score by email
+            String url = userServiceUrl + "/users/email/" + email + "/id";
+            log.debug("Fetching user id for email {} from: {}", email, url);
 
+            // Extract JWT token from current request
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpHeaders headers = new HttpHeaders();
+
+            if (attrs != null) {
+                String bearerToken = attrs.getRequest().getHeader("Authorization");
+                if (bearerToken != null && !bearerToken.isEmpty()) {
+                    headers.set("Authorization", bearerToken);
+                }
+            }
+
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            // Make GET request to User Service
+            ResponseEntity<Long> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    Long.class
+            );
+
+            log.debug("Received user id for {}: {}", email, response.getBody());
+            return response.getBody();
+
+        } catch (Exception e) {
+            log.error("Failed to fetch user score for {}: {}", email, e.getMessage(), e);
+            return null;
+        }
+    }
 
 }

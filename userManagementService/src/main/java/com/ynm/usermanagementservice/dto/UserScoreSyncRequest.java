@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Data
 public class UserScoreSyncRequest {
-    private Integer userId;
+    private Long userId;
     private Float lastUpdate;
     private Float newUpdate;
 }

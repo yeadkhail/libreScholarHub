@@ -63,6 +63,8 @@ public class ReviewService {
             }
         }
         UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
+//        System.out.println(user.getUsername());
+        Long userId = userScoreService.getUserIdByEmail(user.getUsername());
         String userRole = user.getAuthorities().stream()
                 .map(Object::toString)
                 .filter(role -> role.equals("ROLE_UNIPUBLISHER") || role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
@@ -74,14 +76,14 @@ public class ReviewService {
             float publisherScore = userScoreService.getUserScoreByEmail(user.getUsername());
             float updateScore = (publisherScore*review.getScore()/10)/10000;
             review.setLastUpdate(updateScore);
-            userScoreService.syncScore(user.getUsername(), updateScore, 0f);
+            userScoreService.syncScore(userId, updateScore, 0f);
         }
         else if(userRole.equals("ROLE_USER")){
             // to do get metric from user service
             float userScore = userScoreService.getUserScoreByEmail(user.getUsername());
             float updateScore = (userScore*review.getScore()/10)/10000;
             review.setLastUpdate(updateScore);
-            userScoreService.syncScore(user.getUsername(), updateScore, 0f);
+//            userScoreService.syncScore(user.getUsername(), updateScore, 0f);
         }
         review.setPaper(paper);
         review.setTimestamp(new Date());
@@ -117,6 +119,7 @@ public class ReviewService {
                 .filter(role -> role.equals("ROLE_UNIPUBLISHER") || role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
                 .findFirst()
                 .orElse("ROLE_USER");
+        Long userId = userScoreService.getUserIdByEmail(user.getUsername());
 
         if(userRole.equals("ROLE_UNIPUBLISHER")){
 
@@ -127,7 +130,7 @@ public class ReviewService {
             ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
                     .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
             paper.addMetric(updateScore);
-            userScoreService.syncScore(user.getUsername(), updateScore, previousvalue);
+            userScoreService.syncScore(userId, updateScore, previousvalue);
 
         }
         else if(userRole.equals("ROLE_USER")){
@@ -140,7 +143,7 @@ public class ReviewService {
             ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
                     .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
             paper.addMetric(updateScore);
-            userScoreService.syncScore(user.getUsername(), updateScore, previousvalue);
+            userScoreService.syncScore(userId, updateScore, previousvalue);
             // to do : send the update to the user service"
         }
 

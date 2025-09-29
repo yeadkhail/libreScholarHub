@@ -1,4 +1,4 @@
-package com.ynm.researchpaperservice.controller;
+package com.ynm.researchpaperservice.Controller;
 
 import com.ynm.researchpaperservice.service.UserScoreService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ public class TestUserScoreController {
 
     @PostMapping("/user-score")
     public void syncUserScore(
-            @RequestParam Integer userId,
+            @RequestParam Long userId,
             @RequestParam Float newUpdate,
             @RequestParam Float lastUpdate) {
         userScoreService.syncScore(userId, newUpdate, lastUpdate);
@@ -22,5 +22,9 @@ public class TestUserScoreController {
     public Float getUserScoreByEmail(@RequestParam String email) {
         System.out.println(userScoreService.getUserScoreByEmail(email));
         return userScoreService.getUserScoreByEmail(email);
+    }
+    @GetMapping("get-id-by-email")
+    public Long getUserIdByEmail(@RequestParam String email) {
+        return userScoreService.getUserIdByEmail(email);
     }
 }
