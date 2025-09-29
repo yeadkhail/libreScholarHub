@@ -77,35 +77,35 @@ public class CitationController {
     }
 
     // Update a citation
-    @PutMapping("/{id}")
-    public ResponseEntity<Citation> updateCitation(
-            @PathVariable Long id,
-            @RequestBody CitationDto citationDto) {
-        try {
-            Citation updated = citationService.updateCitation(id, citationDto);
-            if (updated != null) {
-                return ResponseEntity.ok(updated);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Citation> updateCitation(
+//            @PathVariable Long id,
+//            @RequestBody CitationDto citationDto) {
+//        try {
+//            Citation updated = citationService.updateCitation(id, citationDto);
+//            if (updated != null) {
+//                return ResponseEntity.ok(updated);
+//            } else {
+//                return ResponseEntity.notFound().build();
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 
 
     // Delete a citation
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Citation> deleteCitation(@PathVariable Long id) {
-        try {
-            Citation deleted = citationService.deleteCitation(id);
-            if (deleted != null) {
-                return ResponseEntity.ok(deleted);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Citation> deleteCitation(@PathVariable Long id) {
+//        try {
+//            Citation deleted = citationService.deleteCitation(id);
+//            if (deleted != null) {
+//                return ResponseEntity.ok(deleted);
+//            } else {
+//                return ResponseEntity.notFound().build();
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 }
