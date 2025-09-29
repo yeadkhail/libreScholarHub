@@ -83,7 +83,7 @@ public class ReviewService {
             float userScore = userScoreService.getUserScoreByEmail(user.getUsername());
             float updateScore = (userScore*review.getScore()/10)/10000;
             review.setLastUpdate(updateScore);
-//            userScoreService.syncScore(user.getUsername(), updateScore, 0f);
+            userScoreService.syncScore(userId, updateScore, 0f);
         }
         review.setPaper(paper);
         review.setTimestamp(new Date());
