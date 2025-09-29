@@ -118,7 +118,6 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
-
     public boolean isEmailRegistered(String email) {
         return userRepository.existsByEmail(email);
     }

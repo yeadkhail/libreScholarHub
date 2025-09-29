@@ -20,4 +20,6 @@ public class Citation {
     @ManyToOne
     @JoinColumn(name = "citing_paper_id")
     private ResearchPaper citingPaper;
+
+    private float lastUpdate;
 }

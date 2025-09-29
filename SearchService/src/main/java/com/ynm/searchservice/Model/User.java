@@ -1,9 +1,11 @@
 package com.ynm.searchservice.Model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -18,11 +20,4 @@ public class User {
 
     private String name;
     private String email;
-    private String affiliation;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Author> authors;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Review> reviews;
 }

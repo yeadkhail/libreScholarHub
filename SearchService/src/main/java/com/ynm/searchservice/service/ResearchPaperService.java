@@ -3,6 +3,7 @@ package com.ynm.searchservice.service;
 import com.ynm.searchservice.Model.ResearchPaper;
 import com.ynm.searchservice.Repository.ResearchPaperRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +14,12 @@ public class ResearchPaperService {
 
     private final ResearchPaperRepository researchPaperRepository;
 
+    //@CachePut(value = "researchPapers", key = "#paper.id")
     public ResearchPaper syncResearchPaper(ResearchPaper paper) {
         return researchPaperRepository.save(paper);
     }
 
+    //@CachePut(value = "researchPapers", key = "#id")
     public ResearchPaper updateResearchPaper(Integer id, ResearchPaper paper) {
         return researchPaperRepository.findById(id).map(existing -> {
             if (paper.getTitle() != null) existing.setTitle(paper.getTitle());
@@ -30,6 +33,7 @@ public class ResearchPaperService {
         }).orElseGet(() -> researchPaperRepository.save(paper));
     }
 
+    //@CacheEvict(value = "researchPapers", key = "#id")
     public void deleteResearchPaper(Integer id) {
         if (!researchPaperRepository.existsById(id)) {
             throw new RuntimeException("ResearchPaper not found");
@@ -37,15 +41,18 @@ public class ResearchPaperService {
         researchPaperRepository.deleteById(id);
     }
 
+    //@Cacheable(value = "researchPapers", key = "#id")
     public ResearchPaper getPaper(Integer id) {
         return researchPaperRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ResearchPaper not found"));
     }
 
+    //@Cacheable(value = "papersByTitle", key = "#keyword")
     public List<ResearchPaper> searchByTitle(String keyword) {
         return researchPaperRepository.findByTitleContainingIgnoreCase(keyword);
     }
 
+    //@Cacheable(value = "allPapers")
     public List<ResearchPaper> getAllPapers() {
         return researchPaperRepository.findAll();
     }

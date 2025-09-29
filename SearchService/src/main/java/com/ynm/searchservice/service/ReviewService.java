@@ -6,6 +6,7 @@ import com.ynm.searchservice.Repository.ReviewRepository;
 import com.ynm.searchservice.Repository.UserRepository;
 import com.ynm.searchservice.dto.ReviewDto;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
 
+    //@CachePut(value = "reviews", key = "#dto.id")
     public Review syncReview(ReviewDto dto) {
         Review review = new Review();
         review.setId(dto.getId());
@@ -33,6 +35,7 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
+    //@CacheEvict(value = "reviews", key = "#id")
     public void deleteReview(Integer id) {
         if (!reviewRepository.existsById(id)) {
             throw new RuntimeException("Review not found");
@@ -40,6 +43,7 @@ public class ReviewService {
         reviewRepository.deleteById(id);
     }
 
+    //@Cacheable(value = "reviewsByPaper", key = "#paperId")
     public List<Review> getReviewsByPaper(Integer paperId) {
         return reviewRepository.findByPaperId(paperId);
     }

@@ -4,6 +4,7 @@ import com.ynm.researchpaperservice.Model.Review;
 import com.ynm.researchpaperservice.Model.ResearchPaper;
 import com.ynm.researchpaperservice.Repository.ReviewRepository;
 import com.ynm.researchpaperservice.Repository.ResearchPaperRepository;
+import com.ynm.researchpaperservice.dto.UserDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -23,14 +25,21 @@ public class ReviewService {
     private final ResearchPaperRepository researchPaperRepository;
     private final RestTemplate restTemplate;
     private final String searchServiceUrl;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final JWTService jwtService;
+
 
     public ReviewService(ReviewRepository reviewRepository,
                          ResearchPaperRepository researchPaperRepository,
                          RestTemplate restTemplate,
+                         UserDetailsServiceImpl userDetailsService,
+                         JWTService jwtService, // Inject your JWT service
                          @Value("${search.service.url}") String searchServiceUrl) {
         this.reviewRepository = reviewRepository;
         this.researchPaperRepository = researchPaperRepository;
         this.restTemplate = restTemplate;
+        this.userDetailsService = userDetailsService;
+        this.jwtService = jwtService; // Initialize it
         this.searchServiceUrl = searchServiceUrl;
     }
 
@@ -39,6 +48,43 @@ public class ReviewService {
         ResearchPaper paper = researchPaperRepository.findById(paperId)
                 .orElseThrow(() -> new RuntimeException("Research paper with id " + paperId + " not found."));
 
+        UserScoreService userScoreService = new UserScoreService(restTemplate);
+
+        String userName = "";
+        // Extract JWT token and username
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            HttpServletRequest request = attrs.getRequest();
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String jwt = authHeader.substring(7);
+                userName = jwtService.extractUserName(jwt);
+
+            }
+        }
+        UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
+//        System.out.println(user.getUsername());
+        Long userId = userScoreService.getUserIdByEmail(user.getUsername());
+        String userRole = user.getAuthorities().stream()
+                .map(Object::toString)
+                .filter(role -> role.equals("ROLE_UNIPUBLISHER") || role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
+                .findFirst()
+                .orElse("ROLE_USER");
+
+        if(userRole.equals("ROLE_UNIPUBLISHER")){
+            // to do get metric from user service
+            float publisherScore = userScoreService.getUserScoreByEmail(user.getUsername());
+            float updateScore = (publisherScore*review.getScore()/10)/10000;
+            review.setLastUpdate(updateScore);
+            userScoreService.syncScore(userId, updateScore, 0f);
+        }
+        else if(userRole.equals("ROLE_USER")){
+            // to do get metric from user service
+            float userScore = userScoreService.getUserScoreByEmail(user.getUsername());
+            float updateScore = (userScore*review.getScore()/10)/10000;
+            review.setLastUpdate(updateScore);
+            userScoreService.syncScore(userId, updateScore, 0f);
+        }
         review.setPaper(paper);
         review.setTimestamp(new Date());
         Review savedReview = reviewRepository.save(review);
@@ -53,6 +99,53 @@ public class ReviewService {
     public Review updateReview(Integer id, Review updatedReview) {
         Review existing = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
+        UserScoreService userScoreService = new UserScoreService(restTemplate);
+
+        String userName = "";
+        // Extract JWT token and username
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            HttpServletRequest request = attrs.getRequest();
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String jwt = authHeader.substring(7);
+                userName = jwtService.extractUserName(jwt);
+
+            }
+        }
+        UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
+        String userRole = user.getAuthorities().stream()
+                .map(Object::toString)
+                .filter(role -> role.equals("ROLE_UNIPUBLISHER") || role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
+                .findFirst()
+                .orElse("ROLE_USER");
+        Long userId = userScoreService.getUserIdByEmail(user.getUsername());
+
+        if(userRole.equals("ROLE_UNIPUBLISHER")){
+
+            float previousvalue = existing.getLastUpdate();
+            float publisherScore = userScoreService.getUserScoreByEmail(user.getUsername());//paper.getPublisher().getPublisherScore();
+            float updateScore = (publisherScore*updatedReview.getScore()/10)/10000;
+            updatedReview.setLastUpdate(updateScore);
+            ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
+                    .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
+            paper.addMetric(updateScore);
+            userScoreService.syncScore(userId, updateScore, previousvalue);
+
+        }
+        else if(userRole.equals("ROLE_USER")){
+
+
+            float previousvalue = existing.getLastUpdate();
+            float userScore = userScoreService.getUserScoreByEmail(user.getUsername());
+            float updateScore = (userScore*updatedReview.getScore()/10)/10000;
+            updatedReview.setLastUpdate(updateScore);
+            ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
+                    .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
+            paper.addMetric(updateScore);
+            userScoreService.syncScore(userId, updateScore, previousvalue);
+            // to do : send the update to the user service"
+        }
 
         if(updatedReview.getScore() != null) existing.setScore(updatedReview.getScore());
         if(updatedReview.getComment() != null) existing.setComment(updatedReview.getComment());

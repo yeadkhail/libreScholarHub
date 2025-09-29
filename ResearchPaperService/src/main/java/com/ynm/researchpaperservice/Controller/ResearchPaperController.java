@@ -29,15 +29,15 @@ public class ResearchPaperController {
             @RequestParam("title") String title,
             @RequestParam("abstractText") String abstractText,
             @RequestParam("visibility") String visibility,
-            @RequestParam("ownerId") Integer ownerId,
-            @RequestParam("metric") Integer metric
+            @RequestParam("ownerId") Integer ownerId
+            //@RequestParam("metric") Integer metric
     ) {
         ResearchPaper paper = new ResearchPaper();
         paper.setTitle(title);
         paper.setAbstractText(abstractText);
         paper.setVisibility(visibility);
         paper.setOwnerId(ownerId);
-        paper.setMetric(metric);
+        paper.setMetric(0f);
 
         ResearchPaper saved = researchPaperService.saveResearchPaperWithFile(file, paper);
         return ResponseEntity.ok(saved);
