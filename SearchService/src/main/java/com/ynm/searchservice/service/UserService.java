@@ -26,6 +26,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
     public void syncUserScore(UserScoreSyncRequest request) {
+//        System.out.println(request.getUserId());
         User user = userRepository.findById(request.getUserId()).orElse(null);
         if (user == null) {
             throw new RuntimeException("User not found with id: " + request.getUserId());

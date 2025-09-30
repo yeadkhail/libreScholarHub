@@ -1,7 +1,11 @@
 package com.ynm.researchpaperservice.service;
 
+import com.ynm.researchpaperservice.Model.Author;
 import com.ynm.researchpaperservice.Model.ResearchPaper;
 import com.ynm.researchpaperservice.Repository.ResearchPaperRepository;
+import com.ynm.researchpaperservice.dto.UserDto;
+import com.ynm.usermanagementservice.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,17 +30,25 @@ public class ResearchPaperService {
 
     private final RestTemplate restTemplate;
     private final String searchServiceUrl;
-
+    private final AuthorService authorService;
+    private final JWTService jwtService;
+    private final UserDetailsServiceImpl userDetailsService;
     // Folder to save uploaded files
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     public ResearchPaperService(ResearchPaperRepository researchPaperRepository,
                                 RestTemplate restTemplate,
-                                @Value("${search.service.url}") String searchServiceUrl) {
+                                @Value("${search.service.url}") String searchServiceUrl,
+                                AuthorService authorService,
+                                JWTService jwtService,
+                                UserDetailsServiceImpl userDetailsService) {
         this.researchPaperRepository = researchPaperRepository;
         this.restTemplate = restTemplate;
         this.searchServiceUrl = searchServiceUrl;
+        this.authorService = authorService;
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
     private void syncWithSearchService(String method, String url, ResearchPaper paper) {
@@ -71,14 +83,57 @@ public class ResearchPaperService {
 
     // Save research paper metadata only
     public ResearchPaper saveResearchPaper(ResearchPaper paper) {
+        UserScoreService userScoreService = new UserScoreService(restTemplate);
+
+        String userName = "";
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            HttpServletRequest request = attrs.getRequest();
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String jwt = authHeader.substring(7);
+                userName = jwtService.extractUserName(jwt);
+            }
+        }
+
+        UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
+        Long ownerId = userScoreService.getUserIdByEmail(user.getUsername());
+
+        paper.setCreatedAt(new java.sql.Date(System.currentTimeMillis()));
+        paper.setOwnerId(ownerId);
+
         ResearchPaper saved = researchPaperRepository.save(paper);
+
         syncWithSearchService("POST", searchServiceUrl + "/research-papers/sync", saved);
+        // also need to create author for the owner
+        Author author = new Author();
+        author.setPosition("0");
+        author.setUserId(paper.getOwnerId());
+        authorService.addAuthor(paper.getId(),author);
+
         return saved;
     }
 
     public ResearchPaper saveResearchPaperWithFile(MultipartFile file, ResearchPaper paper) {
         try {
             // Save file on server
+            UserScoreService userScoreService = new UserScoreService(restTemplate);
+
+            String userName = "";
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attrs != null) {
+                HttpServletRequest request = attrs.getRequest();
+                String authHeader = request.getHeader("Authorization");
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    String jwt = authHeader.substring(7);
+                    userName = jwtService.extractUserName(jwt);
+                }
+            }
+
+            UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
+            Long ownerId = userScoreService.getUserIdByEmail(user.getUsername());
+
+
             String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Path filePath = Path.of(uploadDir, filename);
             Files.createDirectories(filePath.getParent());
@@ -87,11 +142,16 @@ public class ResearchPaperService {
             // Set file path in the entity
             paper.setUploadPath(filePath.toString());
             paper.setCreatedAt(new java.sql.Date(System.currentTimeMillis()));
+            paper.setOwnerId(ownerId);
 
             ResearchPaper saved = researchPaperRepository.save(paper);
-
-            // Sync with search service
             syncWithSearchService("POST", searchServiceUrl + "/research-papers/sync", saved);
+            // also need to create author for the owner
+            Author author = new Author();
+            author.setPosition("0");
+            author.setUserId(saved.getOwnerId());
+            authorService.addAuthor(saved.getId(),author);
+            // Sync with search service
 
             return saved;
         } catch (Exception e) {

@@ -28,15 +28,13 @@ public class ResearchPaperController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") String title,
             @RequestParam("abstractText") String abstractText,
-            @RequestParam("visibility") String visibility,
-            @RequestParam("ownerId") Integer ownerId
+            @RequestParam("visibility") String visibility
             //@RequestParam("metric") Integer metric
     ) {
         ResearchPaper paper = new ResearchPaper();
         paper.setTitle(title);
         paper.setAbstractText(abstractText);
         paper.setVisibility(visibility);
-        paper.setOwnerId(ownerId);
         paper.setMetric(0f);
 
         ResearchPaper saved = researchPaperService.saveResearchPaperWithFile(file, paper);
