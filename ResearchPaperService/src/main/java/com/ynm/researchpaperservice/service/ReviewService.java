@@ -65,6 +65,7 @@ public class ReviewService {
         UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
 //        System.out.println(user.getUsername());
         Long userId = userScoreService.getUserIdByEmail(user.getUsername());
+//        System.out.println(userId);
         String userRole = user.getAuthorities().stream()
                 .map(Object::toString)
                 .filter(role -> role.equals("ROLE_UNIPUBLISHER") || role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
@@ -87,8 +88,9 @@ public class ReviewService {
         }
         review.setPaper(paper);
         review.setTimestamp(new Date());
+        review.setUserId(userId);
         Review savedReview = reviewRepository.save(review);
-
+        System.out.println(savedReview);
         // Sync to SearchService
         syncReviewToSearchService(savedReview);
 

@@ -1,5 +1,6 @@
 package com.ynm.researchpaperservice.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -17,17 +18,16 @@ public class UserScoreService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${user.service.url}")
-    private String userServiceUrl;
+    private final String userServiceUrl;
+    private final String searchServiceUrl;
 
     public UserScoreService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+        this.userServiceUrl = "http://localhost:8090/";
+        this.searchServiceUrl = "http://localhost:8097/";
     }
     public void syncScore(Long userId, Float newUpdate, Float lastUpdate) {
         try {
-            String url = userServiceUrl + "/users/syncScore";
-            log.debug("Syncing user score at: {}", url);
-
             // Prepare body
             Map<String, Object> scorePayload = new HashMap<>();
             scorePayload.put("userId", userId);
@@ -37,6 +37,7 @@ public class UserScoreService {
             // Extract JWT token from request
             ServletRequestAttributes attrs =
                     (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
             if (attrs != null) {
                 String bearerToken = attrs.getRequest().getHeader("Authorization");
                 if (bearerToken != null && !bearerToken.isEmpty()) {
@@ -47,14 +48,14 @@ public class UserScoreService {
                     HttpEntity<Map<String, Object>> entity =
                             new HttpEntity<>(scorePayload, headers);
 
-                    ResponseEntity<Void> response = restTemplate.exchange(
-                            url,
-                            HttpMethod.PUT,
-                            entity,
-                            Void.class
-                    );
+                    // Sync with User Service
+                    String userUrl = userServiceUrl + "/users/syncScore";
+                    callSyncEndpoint(userUrl, entity, "User Service");
 
-                    log.debug("User Service sync response status: {}", response.getStatusCode());
+                    // Sync with Search Service
+                    String searchUrl = searchServiceUrl + "/users/syncScore";
+                    callSyncEndpoint(searchUrl, entity, "Search Service");
+
                 } else {
                     log.warn("No Authorization header found; skipping sync");
                 }
@@ -66,6 +67,25 @@ public class UserScoreService {
             log.error("Failed to sync user score: {}", e.getMessage(), e);
         }
     }
+
+    /**
+     * Helper to call sync endpoint
+     */
+    private void callSyncEndpoint(String url, HttpEntity<Map<String, Object>> entity, String serviceName) {
+        try {
+            log.debug("Syncing user score at: {}", url);
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    entity,
+                    Void.class
+            );
+            log.debug("{} sync response status: {}", serviceName, response.getStatusCode());
+        } catch (Exception ex) {
+            log.error("Failed syncing with {} at {}: {}", serviceName, url, ex.getMessage());
+        }
+    }
+
 
     public Float getUserScoreByEmail(String email) {
         try {
@@ -85,7 +105,7 @@ public class UserScoreService {
             }
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-
+            System.out.println("Syncing user score at: " + url);
             // Make GET request to User Service
             ResponseEntity<Float> response = restTemplate.exchange(
                     url,
@@ -120,6 +140,7 @@ public class UserScoreService {
             }
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
+            System.out.println("Syncing user score at: " + url);
 
             // Make GET request to User Service
             ResponseEntity<Long> response = restTemplate.exchange(
