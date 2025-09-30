@@ -64,7 +64,7 @@ public class UserService {
         user.setEmail(email);
         user.setPassword(password);
         user.setUserName(email);
-
+        user.setUserMetice(0.0F);
         Role role = roleRepository.findByNameIgnoreCase(roleName)
                 .orElseGet(() -> {
                     Role r = new Role();

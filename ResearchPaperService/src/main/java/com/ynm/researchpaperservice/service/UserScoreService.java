@@ -1,5 +1,6 @@
 package com.ynm.researchpaperservice.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -17,11 +18,11 @@ public class UserScoreService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${user.service.url}")
-    private String userServiceUrl;
+    private final String userServiceUrl;
 
     public UserScoreService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+        this.userServiceUrl = "http://localhost:8090/";
     }
     public void syncScore(Long userId, Float newUpdate, Float lastUpdate) {
         try {
@@ -46,7 +47,7 @@ public class UserScoreService {
 
                     HttpEntity<Map<String, Object>> entity =
                             new HttpEntity<>(scorePayload, headers);
-
+                    System.out.println("Syncing user score at: " + url);
                     ResponseEntity<Void> response = restTemplate.exchange(
                             url,
                             HttpMethod.PUT,
@@ -85,7 +86,7 @@ public class UserScoreService {
             }
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-
+            System.out.println("Syncing user score at: " + url);
             // Make GET request to User Service
             ResponseEntity<Float> response = restTemplate.exchange(
                     url,
@@ -120,6 +121,7 @@ public class UserScoreService {
             }
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
+            System.out.println("Syncing user score at: " + url);
 
             // Make GET request to User Service
             ResponseEntity<Long> response = restTemplate.exchange(

@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class ReviewDto {
     private Integer id;
-    private Integer userId;
+    private Long userId;
     private ResearchPaper paper;
     private Integer score;
     private String comment;

@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class AuthorDto {
     private Integer id;
     private ResearchPaper paper;
-    private Integer userId;  // just the ID, not full User
+    private Long userId;  // just the ID, not full User
     private String position;
 }
