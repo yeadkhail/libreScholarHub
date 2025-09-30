@@ -151,6 +151,23 @@ public class AuthController {
         }
     }
 
+    @PostMapping("admin/register")
+    public ResponseEntity<String> registerAdmin(@RequestBody RegisterRequest registerRequest) {
+        try {
+            log.info("Attempting Admin registration for email: {}", registerRequest.getEmail());
+            String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
+            boolean isEmailRegistered = userService.isEmailRegistered(registerRequest.getEmail());
+            if (isEmailRegistered) return ResponseEntity.badRequest().body("Email is already registered");
+            userService.saveAdmin(registerRequest.getFullName(), registerRequest.getEmail(), hashedPassword);
+            log.info("Admin registration successful for email: {}", registerRequest.getEmail());
+            return ResponseEntity.ok("Admin registered successfully");
+        } catch (Exception e) {
+            log.error("Admin registration failed for email: {} - Error: {}", registerRequest.getEmail(), e.getMessage(), e);
+            return ResponseEntity.status(500).body("Admin registration failed: " + e.getMessage());
+
+        }
+    }
+
     @PostMapping("publisher/login")
     public ResponseEntity<?> loginPublisher(@RequestBody LoginRequest loginRequest) {
         try {

@@ -147,4 +147,12 @@ public class UserService {
         log.info("UserDto created for email: {}", email);
         return dto;
     }
+
+    public void saveAdmin(String fullName, String email, String hashedPassword) {
+        User user = createUserObject(fullName, email, hashedPassword, "ROLE_ADMIN");
+        userRepository.save(user);
+
+        // Sync with search service
+        syncUserToSearchService(user);
+    }
 }
