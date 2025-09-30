@@ -70,6 +70,15 @@ public class ReviewService {
         //          Loads useerId of the reviewer not the authors of the paper
         Long userId = userScoreService.getUserIdByEmail(user.getUsername());
 //        System.out.println(userId);
+        List<Author> authors = authorService.getAuthorsByPaper(paperId);
+
+        // 🔍 Check if current user is one of the authors
+        boolean isAuthor = authors.stream()
+                .anyMatch(author -> author.getUserId() != null && author.getUserId().equals(userId));
+
+        if (isAuthor) {
+            throw new RuntimeException("Authors cannot review their own paper.");
+        }
 
 
         // 🔍 Check if user already reviewed this paper
@@ -83,7 +92,6 @@ public class ReviewService {
                     return updateReview(existingReview.getId(), review);
                 })
                 .orElseGet(() -> {
-                    List<Author> authors =  authorService.getAuthorsByPaper(paperId);
                     // If not reviewed, create a new one
                     String userRole = user.getAuthorities().stream()
                             .map(Object::toString)
