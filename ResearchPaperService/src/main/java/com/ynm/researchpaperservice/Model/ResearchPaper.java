@@ -19,7 +19,7 @@ public class ResearchPaper {
     private String abstractText;
     private String uploadPath;
     private String visibility;
-    private Integer ownerId;
+    private Long ownerId;
     private java.sql.Date createdAt;
     private Float metric;
 

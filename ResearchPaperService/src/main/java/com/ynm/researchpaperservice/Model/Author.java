@@ -16,7 +16,7 @@ public class Author {
     @JoinColumn(name = "paper_id", nullable = false)
     private ResearchPaper paper;
 
-    private Integer userId;
+    private Long userId;
     private String position;
 }
 

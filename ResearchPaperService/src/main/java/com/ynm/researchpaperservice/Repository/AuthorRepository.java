@@ -14,5 +14,5 @@ public interface AuthorRepository extends JpaRepository<Author, Integer> {
     List<Author> findByPaper(ResearchPaper paper);
 
     // Find all author entries for a specific user
-    List<Author> findByUserId(Integer userId);
+    List<Author> findByUserId(Long userId);
 }

@@ -96,9 +96,9 @@ public class UserController {
             }
         }
 
-        UserDto userDto = (UserDto) userDetailsService.loadUserByUsername(userName);
+        User userAdmin = (User) userDetailsService.loadUserByUsername(userName);
 
-        String userRole = userDto.getAuthorities().stream()
+        String userRole = userAdmin.getAuthorities().stream()
                 .map(Object::toString)
                 .filter(role -> role.equals("ROLE_ADMIN"))
                 .findFirst()
