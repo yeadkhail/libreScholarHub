@@ -30,6 +30,7 @@ public class ReviewService {
     private final UserDetailsServiceImpl userDetailsService;
     private final JWTService jwtService;
     private final AuthorService authorService;
+    private final ResearchPaperService researchPaperService;
 
 
     public ReviewService(ReviewRepository reviewRepository,
@@ -38,7 +39,8 @@ public class ReviewService {
                          UserDetailsServiceImpl userDetailsService,
                          JWTService jwtService, // Inject your JWT service
                          @Value("${search.service.url}") String searchServiceUrl,
-                         AuthorService authorService) {
+                         AuthorService authorService,
+                         ResearchPaperService researchPaperService) {
         this.reviewRepository = reviewRepository;
         this.researchPaperRepository = researchPaperRepository;
         this.restTemplate = restTemplate;
@@ -46,6 +48,7 @@ public class ReviewService {
         this.jwtService = jwtService; // Initialize it
         this.searchServiceUrl = searchServiceUrl;
         this.authorService = authorService;
+        this.researchPaperService = researchPaperService;
     }
 
     // CREATE
@@ -70,6 +73,15 @@ public class ReviewService {
         //          Loads useerId of the reviewer not the authors of the paper
         Long userId = userScoreService.getUserIdByEmail(user.getUsername());
 //        System.out.println(userId);
+        List<Author> authors = authorService.getAuthorsByPaper(paperId);
+
+        // 🔍 Check if current user is one of the authors
+        boolean isAuthor = authors.stream()
+                .anyMatch(author -> author.getUserId() != null && author.getUserId().equals(userId));
+
+        if (isAuthor) {
+            throw new RuntimeException("Authors cannot review their own paper.");
+        }
 
 
         // 🔍 Check if user already reviewed this paper
@@ -83,7 +95,6 @@ public class ReviewService {
                     return updateReview(existingReview.getId(), review);
                 })
                 .orElseGet(() -> {
-                    List<Author> authors =  authorService.getAuthorsByPaper(paperId);
                     // If not reviewed, create a new one
                     String userRole = user.getAuthorities().stream()
                             .map(Object::toString)
@@ -95,6 +106,9 @@ public class ReviewService {
                         float publisherScore = userScoreService.getUserScoreByEmail(user.getUsername());
                         float updateScore = (publisherScore*review.getScore()/10)/10000;
                         review.setLastUpdate(updateScore);
+
+                        researchPaperService.updatePaperMetric(paper.getId(),updateScore,0F);
+
                         for (Author author : authors) {
                             Long authorUserId = author.getUserId(); // make sure Author entity has userId
                             if (authorUserId != null) {
@@ -106,6 +120,9 @@ public class ReviewService {
                         float userScore = userScoreService.getUserScoreByEmail(user.getUsername());
                         float updateScore = (userScore*review.getScore()/10)/10000;
                         review.setLastUpdate(updateScore);
+
+                        researchPaperService.updatePaperMetric(paper.getId(),updateScore,0F);
+
                         for (Author author : authors) {
                             Long authorUserId = author.getUserId(); // make sure Author entity has userId
                             if (authorUserId != null) {
@@ -161,9 +178,10 @@ public class ReviewService {
             float publisherScore = userScoreService.getUserScoreByEmail(user.getUsername());//paper.getPublisher().getPublisherScore();
             float updateScore = (publisherScore*updatedReview.getScore()/10)/10000;
             updatedReview.setLastUpdate(updateScore);
-            ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
-                    .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
-            paper.addMetric(updateScore);
+//            ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
+//                    .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
+////            paper.addMetric(updateScore);
+            researchPaperService.updatePaperMetric(existing.getPaper().getId(),updateScore,previousvalue);
             for (Author author : authors) {
                 Long authorUserId = author.getUserId(); // make sure Author entity has userId
                 if (authorUserId != null) {
@@ -177,9 +195,11 @@ public class ReviewService {
             float userScore = userScoreService.getUserScoreByEmail(user.getUsername());
             float updateScore = (userScore*updatedReview.getScore()/10)/10000;
             updatedReview.setLastUpdate(updateScore);
-            ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
-                    .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
-            paper.addMetric(updateScore);
+//            ResearchPaper paper = researchPaperRepository.findById(existing.getPaper().getId())
+//                    .orElseThrow(() -> new RuntimeException("Research paper with id " + existing.getPaper().getId() + " not found."));
+//            paper.addMetric(updateScore);
+            researchPaperService.updatePaperMetric(existing.getPaper().getId(),updateScore,previousvalue);
+
             for (Author author : authors) {
                 Long authorUserId = author.getUserId(); // make sure Author entity has userId
                 if (authorUserId != null) {
@@ -199,7 +219,7 @@ public class ReviewService {
                     .orElseThrow(() -> new RuntimeException("Research paper not found"));
             existing.setPaper(paper);
         }
-
+        existing.setLastUpdate(updatedReview.getLastUpdate());
         Review saved = reviewRepository.save(existing);
 
         syncReviewToSearchService(saved);
