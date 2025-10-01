@@ -185,6 +185,29 @@ public class ResearchPaperService {
         }).orElseThrow(() -> new RuntimeException("ResearchPaper not found with id " + id));
     }
 
+    public void updatePaperMetric(Integer paperId, Float newUpdate, Float lastUpdate) {
+        System.out.println(paperId);
+        System.out.println(newUpdate);
+        System.out.println(lastUpdate);
+        ResearchPaper paper = researchPaperRepository.findById(paperId)
+                .orElseThrow(() -> new RuntimeException("Research paper with id " + paperId + " not found."));
+
+        // Current metric
+        Float currentMetric = paper.getMetric();
+        if (currentMetric == null) {
+            currentMetric = 0f;
+        }
+
+        // Update: remove last update, then add new update
+        Float updatedMetric = currentMetric - lastUpdate + newUpdate;
+
+        // Save back
+        paper.setMetric(updatedMetric);
+        researchPaperRepository.save(paper);
+        syncWithSearchService("PUT", searchServiceUrl + "/research-papers/sync/" + paperId, paper);
+    }
+
+
     public List<ResearchPaper> getAllResearchPapers() {
         return researchPaperRepository.findAll();
     }
