@@ -113,6 +113,18 @@ public class UserService {
         }
     }
 
+    public UserTransferDto findUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+
+        UserTransferDto dto = new UserTransferDto();
+        dto.setId(user.getId());
+        dto.setName(user.getFullName());
+        dto.setEmail(user.getEmail());
+
+        return dto;
+    }
+
     // -------------------- OTHER METHODS --------------------
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)

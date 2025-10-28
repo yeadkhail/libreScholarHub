@@ -278,7 +278,7 @@ public class ReviewService {
         try {
             String url = searchServiceUrl + "/reviews/sync";
             log.debug("Syncing review to Search Service at: {}", url);
-
+            System.out.println(review);
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
