@@ -21,3 +21,10 @@ rabbitmq:
     key: Queue2_routing_key
     json:
       key: Queue3_routing_json_key
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
