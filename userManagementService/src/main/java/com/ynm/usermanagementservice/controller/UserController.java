@@ -3,6 +3,7 @@ package com.ynm.usermanagementservice.controller;
 import com.ynm.usermanagementservice.dto.AssignUserScoreDto;
 import com.ynm.usermanagementservice.dto.UserDto;
 import com.ynm.usermanagementservice.dto.UserScoreSyncRequest;
+import com.ynm.usermanagementservice.dto.UserTransferDto;
 import com.ynm.usermanagementservice.model.User;
 import com.ynm.usermanagementservice.repository.UserRepository;
 import com.ynm.usermanagementservice.service.JWTService;
@@ -59,9 +60,6 @@ public class UserController {
         user.setUserMetice(oldScore);
 
         userRepository.save(user);
-
-
-
     }
 
     @GetMapping("/email/{email}/score")
@@ -80,6 +78,12 @@ public class UserController {
             throw new RuntimeException("User not found with email: " + email);
         }
         return user.getId();
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<UserTransferDto> getUserById(@PathVariable Long id) {
+        UserTransferDto userDto = userService.findUserById(id);
+        return ResponseEntity.ok(userDto);
     }
 
     @PutMapping("/assign-user-score")

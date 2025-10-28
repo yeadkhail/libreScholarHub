@@ -53,7 +53,8 @@ public class SecurityConfiguration {
                                 "/api-docs/swagger-config", // <-- Add this line
                                 "/v3/api-docs.yaml",
                                 "/auth/.well-known/jwks.json",
-                                "/users/email/**"
+                                "/users/email/**",
+                                "/users/id/*"
                         )
                         .permitAll()
                         .anyRequest().authenticated())
