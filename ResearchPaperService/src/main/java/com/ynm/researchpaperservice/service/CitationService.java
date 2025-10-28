@@ -1,5 +1,6 @@
 package com.ynm.researchpaperservice.service;
 
+import com.ynm.researchpaperservice.Model.Author;
 import com.ynm.researchpaperservice.Model.Citation;
 import com.ynm.researchpaperservice.Model.ResearchPaper;
 import com.ynm.researchpaperservice.Repository.CitationRepository;
@@ -9,6 +10,7 @@ import com.ynm.researchpaperservice.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,10 +32,15 @@ public class CitationService {
     private final RestTemplate restTemplate;
     private final UserDetailsServiceImpl userDetailsService;
     private final JWTService jwtService;
+    private final RabbitTemplate rabbitTemplate; // 2. Add RabbitTemplate to final fields
+    private final AuthorService authorService;   // 3. Add AuthorService (to get author names)
 
     @Value("${search.service.url}")
     private String searchServiceUrl;
-
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
     /** Helper to get current request's Bearer token */
     private String getBearerToken() {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -66,33 +74,33 @@ public class CitationService {
     }
 
     public Citation createCitation(Integer citedPaperId, Integer citingPaperId) {
-        Optional<ResearchPaper> cited = researchPaperRepository.findById(citedPaperId);
-        Optional<ResearchPaper> citing = researchPaperRepository.findById(citingPaperId);
+        // 1. Fetch the actual ResearchPaper objects, or throw an exception if not found
+        ResearchPaper citedPaper = researchPaperRepository.findById(citedPaperId)
+                .orElseThrow(() -> new RuntimeException("Cited paper not found with id: " + citedPaperId));
+        ResearchPaper citingPaper = researchPaperRepository.findById(citingPaperId)
+                .orElseThrow(() -> new RuntimeException("Citing paper not found with id: " + citingPaperId));
 
-        if (cited.isEmpty() || citing.isEmpty()) {
-            return null;
-        }
-
-
+        // 2. Check if this citation already exists
         Optional<Citation> existing = citationRepository
                 .findByCitedPaperIdAndCitingPaperId(citedPaperId, citingPaperId);
 
         if (existing.isPresent()) {
-            return existing.get();
+            return existing.get(); // Return the existing one
         }
 
-
+        // 3. Create the new citation using the paper objects
         Citation citation = new Citation();
-        citation.setCitedPaper(cited.get());
-        citation.setCitingPaper(citing.get());
+        citation.setCitedPaper(citedPaper);
+        citation.setCitingPaper(citingPaper);
 
         Citation saved = citationRepository.save(citation);
 
-        float lastUpdate = citing.get().getMetric()/1000;
-        cited.get().addMetric(lastUpdate);
-
+        // 4. Update metrics using the paper objects
+        float lastUpdate = citingPaper.getMetric() / 1000;
+        citedPaper.addMetric(lastUpdate);
         citation.setLastUpdate(lastUpdate);
 
+        // 5. Sync user score (your existing logic)
         UserScoreService userScoreService = new UserScoreService(restTemplate);
         String userName = "";
 
@@ -103,19 +111,41 @@ public class CitationService {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String jwt = authHeader.substring(7);
                 userName = jwtService.extractUserName(jwt);
-
             }
         }
         UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
         Long userId = userScoreService.getUserIdByEmail(user.getUsername());
-        userScoreService.syncScore(userId,lastUpdate,0f);
+        userScoreService.syncScore(userId, lastUpdate, 0f);
 
-        // Sync to Search Service
+        // 6. Sync to Search Service
         syncWithSearchService("/citations/sync", HttpMethod.POST, saved);
+
+        // 7. Send RabbitMQ notification (now using the unwrapped paper objects)
+        try {
+            List<Author> citedAuthors = authorService.getAuthorsByPaper(citedPaper.getId());
+
+            String authorIdentifiers = citedAuthors.stream()
+                    .map(author -> author.getUserId() != null ? "User " + author.getUserId() : "an author")
+                    .collect(Collectors.joining(", "));
+             Long ownerId = citedPaper.getOwnerId();
+
+            String message = String.format(
+                    "Your paper '%s' (ID: %d) was cited by '%s' (ID: %d). Congratulations to: %s. (OwnerID: %d)",
+                    citedPaper.getTitle(),
+                    citedPaper.getId(),
+                    citingPaper.getTitle(),
+                    citingPaper.getId(),
+                    authorIdentifiers,
+                    ownerId // Send the ID directly
+            );
+            log.info("Sending message to RabbitMQ: {}", message);
+            rabbitTemplate.convertAndSend(exchange, routingKey, message);
+        } catch (Exception e) {
+            log.error("Failed to send RabbitMQ message for new citation: {}", e.getMessage());
+        }
 
         return saved;
     }
-
 //    public Citation updateCitation(Long id, CitationDto dto) {
 //        return citationRepository.findById(id).map(existing -> {
 //            ResearchPaper citing = researchPaperRepository.findById(dto.getCitingPaperId())

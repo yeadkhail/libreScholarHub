@@ -8,6 +8,7 @@ import com.ynm.researchpaperservice.Repository.ReviewRepository;
 import com.ynm.researchpaperservice.Repository.ResearchPaperRepository;
 import com.ynm.researchpaperservice.dto.UserDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,13 @@ public class ReviewService {
     private final JWTService jwtService;
     private final AuthorService authorService;
     private final ResearchPaperService researchPaperService;
+    private final RabbitTemplate rabbitTemplate;
 
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
     public ReviewService(ReviewRepository reviewRepository,
                          ResearchPaperRepository researchPaperRepository,
@@ -40,7 +47,8 @@ public class ReviewService {
                          JWTService jwtService, // Inject your JWT service
                          @Value("${search.service.url}") String searchServiceUrl,
                          AuthorService authorService,
-                         ResearchPaperService researchPaperService) {
+                         ResearchPaperService researchPaperService,
+                         RabbitTemplate rabbitTemplate) {
         this.reviewRepository = reviewRepository;
         this.researchPaperRepository = researchPaperRepository;
         this.restTemplate = restTemplate;
@@ -49,6 +57,7 @@ public class ReviewService {
         this.searchServiceUrl = searchServiceUrl;
         this.authorService = authorService;
         this.researchPaperService = researchPaperService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     // CREATE
@@ -138,6 +147,19 @@ public class ReviewService {
 
                     // Sync to SearchService
                     syncReviewToSearchService(savedReview);
+                    try {
+                        // --- Get ownerId directly from the paper object ---
+                        Long ownerId = paper.getOwnerId();
+
+                        String message = String.format(
+                                "New review posted by user %d for paper '%s' (ID: %d). (OwnerID: %d)",
+                                userId, paper.getTitle(), paper.getId(), ownerId // Send the ID directly
+                        );
+                        log.info("Sending message to RabbitMQ: {}", message);
+                        rabbitTemplate.convertAndSend(exchange, routingKey, message);
+                    } catch (Exception e) {
+                        log.error("Failed to send RabbitMQ message for new review: {}", e.getMessage());
+                    }
                     return savedReview;
                 });
     }
