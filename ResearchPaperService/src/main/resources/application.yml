@@ -31,6 +31,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 server:
   port: 8091
 
@@ -64,3 +70,8 @@ file:
 spring.data.redis.repositories.enabled: false
 
 
+rabbitmq:
+  exchange:
+    name: Queue2_exchange
+  routing:
+    key: Queue2_routing_key
