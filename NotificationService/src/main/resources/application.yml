@@ -1,0 +1,23 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: springboot-rabbitmq
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  queue:
+    name: Queue2
+    json:
+      name: Queue3_json
+  exchange:
+    name: Queue2_exchange
+  routing:
+    key: Queue2_routing_key
+    json:
+      key: Queue3_routing_json_key
