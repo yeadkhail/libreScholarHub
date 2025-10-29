@@ -34,6 +34,7 @@ public class CitationService {
     private final JWTService jwtService;
     private final RabbitTemplate rabbitTemplate; // 2. Add RabbitTemplate to final fields
     private final AuthorService authorService;   // 3. Add AuthorService (to get author names)
+    private final ResearchPaperService researchPaperService;
 
     @Value("${search.service.url}")
     private String searchServiceUrl;
@@ -96,9 +97,10 @@ public class CitationService {
         Citation saved = citationRepository.save(citation);
 
         // 4. Update metrics using the paper objects
-        float lastUpdate = citingPaper.getMetric() / 1000;
-        citedPaper.addMetric(lastUpdate);
-        citation.setLastUpdate(lastUpdate);
+        float increaseMetric = citingPaper.getMetric() / 1000;
+//        citedPaper.addMetric(increaseMetric);
+        researchPaperService.updatePaperMetric(citedPaperId,increaseMetric,0F);
+        citation.setLastUpdate(increaseMetric);
 
         // 5. Sync user score (your existing logic)
         UserScoreService userScoreService = new UserScoreService(restTemplate);
@@ -115,7 +117,7 @@ public class CitationService {
         }
         UserDto user = (UserDto) userDetailsService.loadUserByUsername(userName);
         Long userId = userScoreService.getUserIdByEmail(user.getUsername());
-        userScoreService.syncScore(userId, lastUpdate, 0f);
+        userScoreService.syncScore(userId, increaseMetric, 0f);
 
         // 6. Sync to Search Service
         syncWithSearchService("/citations/sync", HttpMethod.POST, saved);

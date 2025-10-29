@@ -47,4 +47,10 @@ public class ReviewService {
     public List<Review> getReviewsByPaper(Integer paperId) {
         return reviewRepository.findByPaperId(paperId);
     }
+    public List<Review> getReviewsByPaperByMetricDesc(Integer paperId) {
+        return reviewRepository.findByPaperIdOrderByScoreDesc(paperId);
+    }
+    public List<Review> getReviewsByPaperByMetricAsc(Integer paperId) {
+        return reviewRepository.findByPaperIdOrderByScoreAsc(paperId);
+    }
 }

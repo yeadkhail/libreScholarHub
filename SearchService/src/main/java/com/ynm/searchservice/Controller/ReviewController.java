@@ -32,4 +32,15 @@ public class ReviewController {
     public ResponseEntity<List<Review>> getReviewsByPaper(@PathVariable Integer paperId) {
         return ResponseEntity.ok(reviewService.getReviewsByPaper(paperId));
     }
+    // --- NEW ENDPOINT 1 ---
+    @GetMapping("/paper/{paperId}/sorted/desc")
+    public ResponseEntity<List<Review>> getReviewsByPaperDesc(@PathVariable Integer paperId) {
+        return ResponseEntity.ok(reviewService.getReviewsByPaperByMetricDesc(paperId));
+    }
+
+    // --- NEW ENDPOINT 2 ---
+    @GetMapping("/paper/{paperId}/sorted/asc")
+    public ResponseEntity<List<Review>> getReviewsByPaperAsc(@PathVariable Integer paperId) {
+        return ResponseEntity.ok(reviewService.getReviewsByPaperByMetricAsc(paperId));
+    }
 }

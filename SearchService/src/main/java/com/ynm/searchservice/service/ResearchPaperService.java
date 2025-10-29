@@ -1,5 +1,6 @@
 package com.ynm.searchservice.service;
 
+import com.ynm.searchservice.Model.PaperTag;
 import com.ynm.searchservice.Model.ResearchPaper;
 import com.ynm.searchservice.Repository.ResearchPaperRepository;
 import lombok.AllArgsConstructor;
@@ -49,11 +50,14 @@ public class ResearchPaperService {
 
     //@Cacheable(value = "papersByTitle", key = "#keyword")
     public List<ResearchPaper> searchByTitle(String keyword) {
-        return researchPaperRepository.findByTitleContainingIgnoreCase(keyword);
+        return researchPaperRepository.findByTitleContainingIgnoreCaseOrderByMetricDesc(keyword);
     }
 
     //@Cacheable(value = "allPapers")
     public List<ResearchPaper> getAllPapers() {
-        return researchPaperRepository.findAll();
+        return researchPaperRepository.findAllByOrderByMetricDesc();
+    }
+    public List<ResearchPaper> getPapersByTag(int tagId) {
+        return researchPaperRepository.findPapersByTagId(tagId);
     }
 }

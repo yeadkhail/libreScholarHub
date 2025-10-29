@@ -20,5 +20,5 @@ public class ResearchPaper {
     private String visibility;
     private Integer ownerId;
     private java.sql.Date createdAt;
-    private Integer metric;
+    private Float metric;
 }
