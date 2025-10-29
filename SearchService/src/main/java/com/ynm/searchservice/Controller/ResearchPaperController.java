@@ -1,5 +1,6 @@
 package com.ynm.searchservice.Controller;
 
+import com.ynm.searchservice.Model.PaperTag;
 import com.ynm.searchservice.Model.ResearchPaper;
 import com.ynm.searchservice.service.ResearchPaperService;
 import lombok.AllArgsConstructor;
@@ -47,5 +48,9 @@ public class ResearchPaperController {
     @GetMapping
     public ResponseEntity<List<ResearchPaper>> getAllPapers() {
         return ResponseEntity.ok(researchPaperService.getAllPapers());
+    }
+    @GetMapping("/tag/{tagId}")
+    public ResponseEntity<List<ResearchPaper>> getPapersByTag(@PathVariable int tagId) {
+        return ResponseEntity.ok(researchPaperService.getPapersByTag(tagId));
     }
 }

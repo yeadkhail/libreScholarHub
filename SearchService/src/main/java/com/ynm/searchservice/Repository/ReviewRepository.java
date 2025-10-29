@@ -9,5 +9,12 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
     List<Review> findByPaperId(Integer paperId);
+
+    // 1. CORRECTED: Renamed to "OrderByScoreDesc"
+    List<Review> findByPaperIdOrderByScoreDesc(Integer paperId);
+
+    // 2. CORRECTED: Renamed to "OrderByScoreAsc" (Asc is default, but explicit is clearer)
+    List<Review> findByPaperIdOrderByScoreAsc(Integer paperId);
+
     List<Review> findByUserId(Integer userId);
 }
