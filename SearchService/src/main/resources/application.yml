@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: search-service
+  elasticsearch:
+    uris: http://localhost:9200
   data:
     redis:
       host: localhost

@@ -3,6 +3,7 @@ package com.ynm.searchservice.service;
 import com.ynm.searchservice.Model.PaperTag;
 import com.ynm.searchservice.Model.ResearchPaper;
 import com.ynm.searchservice.Repository.ResearchPaperRepository;
+import com.ynm.searchservice.service.IndexingService;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
@@ -14,15 +15,23 @@ import java.util.List;
 public class ResearchPaperService {
 
     private final ResearchPaperRepository researchPaperRepository;
+    private final IndexingService indexingService;
 
     //@CachePut(value = "researchPapers", key = "#paper.id")
     public ResearchPaper syncResearchPaper(ResearchPaper paper) {
-        return researchPaperRepository.save(paper);
+
+        // 2. Save to SQL first
+        ResearchPaper savedPaper = researchPaperRepository.save(paper);
+
+        // 3. Then, tell Elasticsearch to index the new paper
+        indexingService.indexSinglePaper(savedPaper.getId());
+
+        return savedPaper;
     }
 
     //@CachePut(value = "researchPapers", key = "#id")
     public ResearchPaper updateResearchPaper(Integer id, ResearchPaper paper) {
-        return researchPaperRepository.findById(id).map(existing -> {
+        ResearchPaper updatedPaper = researchPaperRepository.findById(id).map(existing -> {
             if (paper.getTitle() != null) existing.setTitle(paper.getTitle());
             if (paper.getAbstractText() != null) existing.setAbstractText(paper.getAbstractText());
             if (paper.getUploadPath() != null) existing.setUploadPath(paper.getUploadPath());
@@ -32,6 +41,9 @@ public class ResearchPaperService {
             if (paper.getMetric() != null) existing.setMetric(paper.getMetric());
             return researchPaperRepository.save(existing);
         }).orElseGet(() -> researchPaperRepository.save(paper));
+        indexingService.indexSinglePaper(updatedPaper.getId());
+
+        return updatedPaper;
     }
 
     //@CacheEvict(value = "researchPapers", key = "#id")
@@ -40,6 +52,7 @@ public class ResearchPaperService {
             throw new RuntimeException("ResearchPaper not found");
         }
         researchPaperRepository.deleteById(id);
+        indexingService.removePaperFromIndex(id);
     }
 
     //@Cacheable(value = "researchPapers", key = "#id")
