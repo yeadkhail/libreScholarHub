@@ -15,10 +15,10 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8080/api/auth/.well-known/jwks.json
+          jwk-set-uri: http://user-service:8080/api/auth/.well-known/jwks.json
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/libreresearchhub_researchpaper_service
+    url: jdbc:postgresql://localhost:5432/research_paper_db
     username: libreresearchhub
     password: 123456
     driver-class-name: org.postgresql.Driver
@@ -49,7 +49,7 @@ springdoc:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
 
 user:
   service:

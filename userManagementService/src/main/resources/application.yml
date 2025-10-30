@@ -11,7 +11,7 @@ spring:
   cache:
     type: redis
   datasource:
-    url: jdbc:postgresql://localhost:5432/yeadkhail
+    url: jdbc:postgresql://localhost:5432/user_service_db
     driver-class-name: org.postgresql.Driver
     username: yeadkhail
     password: 123456
@@ -34,7 +34,7 @@ logging:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
 
 search:
   service:

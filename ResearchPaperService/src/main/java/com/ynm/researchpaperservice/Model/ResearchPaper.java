@@ -1,15 +1,17 @@
 package com.ynm.researchpaperservice.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+import java.util.Date;
+
 @Entity
-@Table(name = "ResearchPaper")
+@Table(name = "research_papers")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResearchPaper {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +22,6 @@ public class ResearchPaper {
     private String uploadPath;
     private String visibility;
     private Long ownerId;
-    private java.sql.Date createdAt;
+    private Date createdAt;
     private Float metric;
-
-
-    public void addMetric(float newMetric) {
-        this.metric += newMetric;
-    }
 }
