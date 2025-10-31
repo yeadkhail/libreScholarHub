@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/research-papers")
+@RequestMapping("/api/search/research-papers")
 @AllArgsConstructor
 public class ResearchPaperController {
 

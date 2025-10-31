@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/citations")
+@RequestMapping("/api/search/citations")
 @AllArgsConstructor
 public class CitationController {
 

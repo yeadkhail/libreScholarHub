@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/paperversions")
+@RequestMapping("/api/search/paperversions")
 @AllArgsConstructor
 public class PaperVersionController {
 

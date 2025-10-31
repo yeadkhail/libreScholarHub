@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/papertags")
+@RequestMapping("/api/search/papertags")
 @AllArgsConstructor
 public class PaperTagController {
 

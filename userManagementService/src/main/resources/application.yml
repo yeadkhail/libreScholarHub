@@ -38,7 +38,7 @@ eureka:
 
 search:
   service:
-    url: http://localhost:8097/
+    url: http://localhost:8097/api/search
 
 springdoc:
   api-docs:

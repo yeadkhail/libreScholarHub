@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/paper-versions")
+@RequestMapping("/api/research-paper/paper-versions")
 @RequiredArgsConstructor
 public class PaperVersionController {
 

@@ -24,7 +24,7 @@ public class UserScoreService {
     public UserScoreService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
         this.userServiceUrl = "http://localhost:8090/";
-        this.searchServiceUrl = "http://localhost:8097/";
+        this.searchServiceUrl = "http://localhost:8097/api/search";
     }
     public void syncScore(Long userId, Float newUpdate, Float lastUpdate) {
         try {
