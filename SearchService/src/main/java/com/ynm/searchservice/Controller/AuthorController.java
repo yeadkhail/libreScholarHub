@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/authors")
+@RequestMapping("/api/search/authors")
 @AllArgsConstructor
 public class AuthorController {
 

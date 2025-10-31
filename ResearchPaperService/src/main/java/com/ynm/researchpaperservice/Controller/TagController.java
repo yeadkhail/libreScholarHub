@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tags")
+@RequestMapping("/api/research-paper/tags")
 public class TagController {
 
     @Autowired

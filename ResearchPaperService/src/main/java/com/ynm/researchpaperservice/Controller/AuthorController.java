@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/papers/{paperId}/authors")
+@RequestMapping("/api/research-paper/papers/{paperId}/authors")
 @RequiredArgsConstructor
 public class AuthorController {
 

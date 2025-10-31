@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/papers")
+@RequestMapping("/api/research-paper/paper")
 @RequiredArgsConstructor
 public class ResearchPaperController {
 

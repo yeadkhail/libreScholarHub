@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/citations")
+@RequestMapping("/api/research-paper/citations")
 @RequiredArgsConstructor
 public class CitationController {
 

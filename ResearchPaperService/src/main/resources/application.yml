@@ -58,7 +58,7 @@ user:
 
 search:
   service:
-    url: http://localhost:8097/
+    url: http://localhost:8097/api/search
     token: UkFOVHJhdkluZVRlbXBlcnlCb2R5c0NvdWx0Wk1hcmFSVE1hY2tIb2RzdHJhbUE=
 
 
