@@ -666,18 +666,8 @@ Access Swagger UI for each service:
    - Use Docker secrets for sensitive data
    - Never commit credentials to version control
 
-## 📞 Support
 
-For issues, questions, or contributions:
-
-1. Check the [Troubleshooting](#troubleshooting) section
-2. Review service logs: `docker-compose logs <service-name>`
-3. Open an issue on GitHub
-4. Check Eureka dashboard for service status
-
-
-
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 Built with:
 - Spring Boot & Spring Cloud
@@ -690,4 +680,3 @@ Built with:
 
 ---
 
-**Happy Deploying! 🚀**
