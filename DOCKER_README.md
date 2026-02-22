@@ -2,7 +2,7 @@
 
 This guide provides comprehensive instructions for deploying the LibreScholarHub microservices architecture using Docker and Docker Compose.
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Docker** (version 20.10 or higher)
 - **Docker Compose** (version 2.0 or higher)
@@ -10,7 +10,7 @@ This guide provides comprehensive instructions for deploying the LibreScholarHub
 - **Java 21** (for local development)
 - **Maven** (for building JAR files)
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 The LibreScholarHub consists of the following microservices:
 
@@ -27,7 +27,7 @@ The LibreScholarHub consists of the following microservices:
 - **Redis** (Port 6379) - Caching layer
 - **RabbitMQ** (Port 5672, Management: 15672) - Message broker
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 
@@ -79,7 +79,7 @@ Each microservice has been optimized with:
 | Search Service | `SearchService/Dockerfile` | Search optimization |
 | Notification Service | `NotificationService/Dockerfile` | Message queue integration |
 
-## 📝 Configuration Files
+## Configuration Files
 
 ### Docker Compose Files
 
@@ -105,7 +105,7 @@ RABBITMQ_PASSWORD=your_secure_password_here
 SPRING_PROFILES_ACTIVE=prod
 ```
 
-## 🛠️ Build Scripts
+## Build Scripts
 
 ### Build Script (`build.sh`)
 
@@ -185,7 +185,7 @@ docker exec -it redis-cache redis-cli
 # Open http://localhost:15672 in browser
 ```
 
-## 🚀 Production Deployment
+## Production Deployment
 
 ### 1. Pre-deployment Checklist
 
@@ -221,7 +221,7 @@ curl http://localhost:8080/actuator/health
 ./deploy.sh logs prod
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -283,7 +283,7 @@ docker-compose logs -f user-service
 docker-compose logs > logs/application.log
 ```
 
-## 📊 Performance Optimization
+## Performance Optimization
 
 ### JVM Tuning
 
@@ -300,7 +300,7 @@ The Dockerfiles include optimized JVM settings:
 - Health checks enable automatic recovery
 - Resource limits prevent container sprawl
 
-## 🔐 Security Considerations
+## Security Considerations
 
 - Non-root user execution in containers
 - Secure environment variable handling
@@ -308,24 +308,3 @@ The Dockerfiles include optimized JVM settings:
 - Regular base image updates
 - Secret management for production
 
-## 📚 Additional Resources
-
-- [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
-- [Spring Boot Docker Guide](https://spring.io/guides/gs/spring-boot-docker/)
-- [Docker Compose Documentation](https://docs.docker.com/compose/)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make changes and test with Docker
-4. Submit a pull request
-
-## 📞 Support
-
-For issues and questions:
-
-1. Check the troubleshooting section
-2. View container logs: `./deploy.sh logs`
-3. Check service status: `./deploy.sh status`
-4. Open an issue in the repository
