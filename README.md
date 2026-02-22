@@ -15,7 +15,7 @@ A microservices-based research paper management and search platform built with S
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
 
-## 🏗 Architecture
+## Architecture
 
 LibreScholarHub uses a microservices architecture with the following components:
 
@@ -53,7 +53,7 @@ LibreScholarHub uses a microservices architecture with the following components:
                     └─────────────────┘
 ```
 
-## 🔧 Services
+## Services
 
 ### Core Services
 
@@ -95,7 +95,7 @@ LibreScholarHub uses a microservices architecture with the following components:
 - **RabbitMQ** (Port: 5672, Management: 15672) - Message broker
 - **Elasticsearch** (Port: 9200) - Search engine
 
-## 📦 Prerequisites
+## Prerequisites
 
 Before deploying LibreScholarHub, ensure you have the following installed:
 
@@ -112,7 +112,7 @@ Before deploying LibreScholarHub, ensure you have the following installed:
 - **CPU**: 4 cores recommended
 - **OS**: Linux, macOS, or Windows with WSL2
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 
@@ -178,7 +178,7 @@ curl http://localhost:8761/
 curl http://localhost:8761/eureka/apps
 ```
 
-## 🔧 Deployment
+## Deployment
 
 ### Step-by-Step Deployment Guide
 
@@ -268,7 +268,7 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
-## 🌐 Service Endpoints
+## Service Endpoints
 
 ### Eureka Dashboard
 - **URL**: http://localhost:8761
@@ -331,7 +331,7 @@ Authorization: Bearer <your-jwt-token>
 - **Cluster Health**: http://localhost:9200/_cluster/health
 - **Indices**: http://localhost:9200/_cat/indices?v
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -385,7 +385,7 @@ environment:
   - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  # Set to half of available RAM
 ```
 
-## 📊 Monitoring
+## Monitoring
 
 ### Health Checks
 
@@ -440,7 +440,7 @@ curl http://localhost:9200/_cat/indices?v
 curl http://localhost:9200/_nodes/stats?pretty
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -555,7 +555,7 @@ docker system prune -a --volumes
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
-## 💻 Development
+## Development
 
 ### Local Development Setup
 
@@ -626,7 +626,7 @@ Access Swagger UI for each service:
 - Research Paper Service: http://localhost:8091/swagger-ui.html
 - Search Service: http://localhost:8097/swagger-ui.html
 
-## 📝 Environment-Specific Configurations
+## Environment-Specific Configurations
 
 ### Development (`docker-compose.dev.yml`)
 - Debug logging enabled
@@ -640,9 +640,9 @@ Access Swagger UI for each service:
 - Security hardening
 - Health checks enabled
 
-## 🛡️ Security Notes
+## Security Notes
 
-**⚠️ Important for Production:**
+** Important for Production:**
 
 1. **Change Default Passwords**:
    - PostgreSQL password
