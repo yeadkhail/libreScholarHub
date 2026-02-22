@@ -105,12 +105,6 @@ Before deploying LibreScholarHub, ensure you have the following installed:
 - **Maven 3.8+** (for building from source)
 - **Git** (for cloning the repository)
 
-### System Requirements
-
-- **RAM**: Minimum 8GB (16GB recommended)
-- **Disk Space**: 10GB free space
-- **CPU**: 4 cores recommended
-- **OS**: Linux, macOS, or Windows with WSL2
 
 ## Quick Start
 
